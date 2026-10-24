@@ -3215,7 +3215,7 @@ function resize() {
 let lastT = performance.now(), homeT = 0;
 function frame(now) {
   requestAnimationFrame(frame);
-  const dt = Math.min(0.05, (now - lastT) / 1000); lastT = now;
+  const dt = Math.max(0, Math.min(0.05, (now - lastT) / 1000)); lastT = now; // never negative: rAF time can precede lastT set after a long load
   if (state === 'home' || !W) {
     homeT += dt;
     if (homeChar) {
