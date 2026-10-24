@@ -34,32 +34,42 @@ function makeNoise(seed) {
 // ================= DATA =================
 const MAPS = [
   { id: 'scoglio', name: 'Scoglio Corallo', tag: 'Piccola', size: 380, bots: 14, seed: 11, villages: 2, houses: 10, trees: 170, rocks: 45, hill: 6, mountain: 0, islands: 'single', treeKinds: ['palm', 'round'],
-    grass: [0x5f6a2e, 0x4a5426], dry: 0x8f6430, sand: 0xc9b48a, seabed: 0x7c7058, timeK: 0.62, snow: 0, sky: [0x231848, 0x9a5c6c] },
+    grass: [0x5f6a2e, 0x4a5426], dry: 0x8f6430, sand: 0xc9b48a, seabed: 0x7c7058, timeK: 0.85, snow: 0, sky: [0x231848, 0x9a5c6c] },
   { id: 'baia', name: 'Baia Smeraldo', tag: 'Media', size: 680, bots: 29, seed: 27, villages: 4, houses: 26, trees: 460, rocks: 100, hill: 15, mountain: 0, islands: 'single', treeKinds: ['round', 'pine', 'round'],
-    grass: [0x56662c, 0x434e24], dry: 0x8a5e2c, sand: 0xc4b088, seabed: 0x786c55, timeK: 0.9, snow: 0, sky: [0x1e1644, 0x925468] },
+    grass: [0x56662c, 0x434e24], dry: 0x8a5e2c, sand: 0xc4b088, seabed: 0x786c55, timeK: 1.0, snow: 0, sky: [0x1e1644, 0x925468] },
   { id: 'arcipelago', name: 'Arcipelago Tuono', tag: 'Grande', size: 1050, bots: 49, seed: 53, villages: 6, houses: 44, trees: 760, rocks: 170, hill: 11, mountain: 0, islands: 'multi', treeKinds: ['palm', 'round', 'pine'],
     grass: [0x5a6a30, 0x465428], dry: 0x93662e, sand: 0xc8b48a, seabed: 0x7e7259, timeK: 1.15, snow: 0, sky: [0x1a1a4a, 0x8a5470] },
   { id: 'continente', name: 'Terre Selvagge', tag: 'Enorme', size: 1500, bots: 69, seed: 91, villages: 9, houses: 72, trees: 1250, rocks: 300, hill: 18, mountain: 56, islands: 'single', treeKinds: ['pine', 'pine', 'round'],
-    grass: [0x4e5e30, 0x3c4a26], dry: 0x7e5a30, sand: 0xbcab84, seabed: 0x746a54, timeK: 1.45, snow: 44, sky: [0x15183a, 0x7a5a78] },
+    grass: [0x4e5e30, 0x3c4a26], dry: 0x7e5a30, sand: 0xbcab84, seabed: 0x746a54, timeK: 1.3, snow: 44, sky: [0x15183a, 0x7a5a78] },
 ];
 const WEAPONS = {
   piccone: { name: 'Piccone', rate: 0.42, mag: 0 },
-  pistola: { name: 'Pistola', dmg: 24, rate: 0.22, mag: 12, reload: 1.2, spread: 0.012, range: 110, head: 1.75, ideal: 18, acc: 1.0 },
-  mitra: { name: 'Mitraglietta', dmg: 15, rate: 0.075, mag: 30, reload: 1.8, spread: 0.034, range: 70, head: 1.5, ideal: 13, acc: 0.85 },
-  assalto: { name: "Fucile d'assalto", dmg: 30, rate: 0.15, mag: 30, reload: 2.1, spread: 0.02, range: 170, head: 1.6, ideal: 30, acc: 1.0 },
-  pompa: { name: 'Fucile a pompa', dmg: 11, rate: 0.95, mag: 5, reload: 2.6, spread: 0.08, range: 38, head: 1.5, ideal: 7, acc: 1.1, pellets: 9 },
-  cecchino: { name: 'Cecchino', dmg: 100, rate: 1.6, mag: 1, reload: 2.3, spread: 0.05, range: 420, head: 2.5, ideal: 70, acc: 0.5, scope: true },
+  pistola: { name: 'Pistola', dmg: 23, rate: 0.25, mag: 12, reload: 1.3, spread: 0.012, range: 110, head: 1.75, ideal: 18, acc: 1.0, pspd: 100 },
+  mitra: { name: 'Mitraglietta', dmg: 14, rate: 0.09, mag: 25, reload: 2.0, spread: 0.034, range: 70, head: 1.5, ideal: 13, acc: 0.85, pspd: 90 },
+  assalto: { name: "Fucile d'assalto", dmg: 28, rate: 0.18, mag: 30, reload: 2.2, spread: 0.02, range: 170, head: 1.6, ideal: 30, acc: 1.0, pspd: 120 },
+  pompa: { name: 'Fucile a pompa', dmg: 11, rate: 0.9, mag: 5, reload: 2.8, spread: 0.08, range: 38, head: 1.5, ideal: 7, acc: 1.1, pellets: 8, pspd: 90 },
+  cecchino: { name: 'Cecchino', dmg: 100, rate: 1.6, mag: 1, reload: 2.4, spread: 0.05, range: 420, head: 2.5, ideal: 70, acc: 4, scope: true, pspd: 220 },
 };
 const KINDS = ['pistola', 'mitra', 'assalto', 'pompa', 'cecchino'];
-const KIND_W = [26, 22, 25, 18, 9];
+const KIND_W = [26, 22, 24, 18, 10];
 const RAR = [ // Halloween rarity tiers (own palette)
   { name: 'Cenere', css: '#d8c9b0', hex: 0xb0a088, m: 1.0 },
-  { name: 'Brina', css: '#7fe0f0', hex: 0x4fb8c8, m: 1.08 },
-  { name: 'Ambra', css: '#ffc94a', hex: 0xd9a52a, m: 1.16 },
-  { name: 'Zucca', css: '#ff6a2a', hex: 0xd9481a, m: 1.24 },
-  { name: 'Spettrale', css: '#ff4fb8', hex: 0xd0308f, m: 1.33 }
+  { name: 'Brina', css: '#7fe0f0', hex: 0x4fb8c8, m: 1.06 },
+  { name: 'Ambra', css: '#ffc94a', hex: 0xd9a52a, m: 1.12 },
+  { name: 'Zucca', css: '#ff6a2a', hex: 0xd9481a, m: 1.19 },
+  { name: 'Spettrale', css: '#ff4fb8', hex: 0xd0308f, m: 1.25 }
 ];
-function rollRarity(rng = R, bonus = 0) { const r = rng() * 100; let t = r < 40 ? 0 : r < 70 ? 1 : r < 88 ? 2 : r < 97 ? 3 : 4; if (bonus && rng() < 0.45) t = Math.min(4, t + 1); return t; }
+// Probabilità in percentuale (ogni riga somma 100). Nessun acquisto, nessuna valuta: solo loot di gioco.
+const LOOT_TABLE = {
+  rarita: { terra: [42, 30, 17, 8, 3], forziere: [20, 33, 26, 14, 7] },   // forziere = anche bot in "difficile"
+  terra: { gun: 50, munizioni: 18, bende: 12, scudo: 9, caramelle: 4, legno: 7 },
+  quantita: { munizioni: 30, bende: 2, scudo: 1, caramelle: 1, legno: 30 },
+  forziere: { munizioni: 30, legno: 30, cura: 65, bende: 55 },           // sempre 1 arma + munizioni + legno; 65% una cura, di cui 55% bende e 45% scudo
+};
+function rollRarity(rng = R, bonus = 0) {
+  const t = bonus ? LOOT_TABLE.rarita.forziere : LOOT_TABLE.rarita.terra; let r = rng() * 100;
+  for (let i = 0; i < t.length; i++) { r -= t[i]; if (r < 0) return i; } return 0;
+}
 const SKIN_TONES = [0xf2d0b6, 0xe6b894, 0xd29e76, 0xb27a52, 0x8a5a3c, 0x5d3b27];
 const HAIR_COLS = [0x16110e, 0x2f2016, 0x4e331f, 0x8a6235, 0x6e2f16, 0x8f8a84];
 const IRIS_COLS = [0x3b2a1c, 0x2d5674, 0x3d6438, 0x5a4626, 0x252020];
@@ -86,12 +96,19 @@ const LOOKS = [
   { name: 'Demone', monster: 'demon', top: 0x8e1f1a, top2: 0x2a0a0a, skin: 0x8e1f1a, glow: 0xffb020 },
 ];
 const FIRST_MONSTER = LOOKS.findIndex(l => l.monster);
-const NAMES = ['Falco', 'Brontolo', 'Pixel', 'Saetta', 'Tano', 'Gelato99', 'Capitano', 'Moka', 'Turbo', 'Zucca', 'Lampo', 'Biscotto', 'Rafano', 'Vortice', 'Tornado', 'Cactus', 'Gufo', 'Nebbia', 'Razzo', 'Spugna', 'Ferro', 'Bolla', 'Ciclone', 'Orso', 'Mirtillo', 'Pepe', 'Scintilla', 'Polpo', 'Zeta', 'Mamba', 'Riccio', 'Ombretta', 'Grizzly', 'Sasso', 'Fulmine', 'Volpe', 'Nuvola', 'Tigre', 'Kiwi', 'Draghetto', 'Panzer', 'Bruco', 'Cometa', 'Lupetto', 'Gnomo', 'Tartufo', 'Yeti', 'Ninja', 'Bomber', 'Frizzi'];
+const NAMES = ['ZuccaFurtiva', 'Ombra_Morbida', 'Capitan Ragnatela', 'Lanterna77', 'Grimaldello', 'Spettrino', 'NebbiaBassa', 'Corvo_Distratto', 'Mister Lapide', 'Strega Polpetta', 'Brividino', 'Zio Pipistrello', 'Candelotto', 'Lupo Pigiama', 'Fiammella_Blu', 'Gufo Insonne', 'Scheletrino Pro', 'Mantello Storto', 'Biscotto Maledetto', 'Tempestino', 'Falco', 'Brontolo', 'Pixel', 'Saetta', 'Tano', 'Gelato99', 'Capitano', 'Moka', 'Turbo', 'Zucca', 'Lampo', 'Biscotto', 'Rafano', 'Vortice', 'Tornado', 'Cactus', 'Gufo', 'Nebbia', 'Razzo', 'Spugna', 'Ferro', 'Bolla', 'Ciclone', 'Orso', 'Mirtillo', 'Pepe', 'Scintilla', 'Polpo', 'Zeta', 'Mamba', 'Riccio', 'Ombretta', 'Grizzly', 'Sasso', 'Fulmine', 'Volpe', 'Nuvola', 'Tigre', 'Kiwi', 'Draghetto', 'Panzer', 'Bruco', 'Cometa', 'Lupetto', 'Gnomo', 'Tartufo', 'Yeti', 'Ninja', 'Bomber', 'Frizzi'];
 const VILLAGE_NAMES = ['Borgo Ventoso', 'Pineta Pigra', 'Porto Ruggine', 'Colle Lampo', 'Fattoria Fumante', 'Torri Tonde', 'Piazza Pirata', 'Valle Vespa', 'Rocca Ronzio', 'Spiaggia Sbadiglio', 'Mulino Matto', 'Cava Coraggio'];
 const DIFF = {
-  facile: { acc: 0.11, react: 1.2, detect: 45 },
-  normale: { acc: 0.2, react: 0.8, detect: 60 },
-  difficile: { acc: 0.32, react: 0.5, detect: 78 },
+  facile:    { acc: 0.11, react: 1.1,  detect: 45, aimErr: 7.5, aimMin: 4.5, settle: 2.5, lead: 0.25, windup: 0.45, burst: 3, burstPause: 1.2, rateK: 2.8, pspdK: 0.8,  sniperWarn: 0.9 },
+  normale:   { acc: 0.2,  react: 0.75, detect: 60, aimErr: 6.0, aimMin: 3.2, settle: 2.0, lead: 0.45, windup: 0.35, burst: 5, burstPause: 0.9, rateK: 2.4, pspdK: 1.0,  sniperWarn: 0.8 },
+  difficile: { acc: 0.32, react: 0.5,  detect: 75, aimErr: 4.5, aimMin: 2.4, settle: 1.5, lead: 0.65, windup: 0.25, burst: 7, burstPause: 0.7, rateK: 2.0, pspdK: 1.15, sniperWarn: 0.7 },
+};
+// Bot contro bot: uguale a ogni difficoltà (usa la mira di "normale"), la difficoltà cambia solo come i bot sparano a TE.
+const BOT_VS_BOT = { dmgK: 0.45, errK: 1.35, aggro: 20, aggroPhase: 5, cooldown: 30, coolPhase: 0.12, minFight: 5, disengage: 0.35, retaliateSkip: 0.7 };
+const BUILD_COST = {
+  wall: { wood: 10, hp: 150 }, ramp: { wood: 10, hp: 140 },
+  floor: { wood: 10, hp: 140 }, roof: { wood: 10, hp: 140 },               // floor/roof: NON esistono nel codice, valori per un'eventuale aggiunta
+  woodPerHit: 12, treeHits: 4, woodMax: 500, woodStart: 40, pickaxeVsBuild: 60, botVsBuild: 0.6,
 };
 const GFX = {
   bassa: { pr: 1, shadow: 0, grass: 0, grassR: 0, segDiv: 7, bush: 0.4, fog: 300, shadowR: 0, hiDist: 22, bats: 14, embers: 40, wisps: 0 },
@@ -99,8 +116,8 @@ const GFX = {
   alta: { pr: 1.35, shadow: 2048, grass: 16000, blades: 6, grassR: 36, segDiv: 4.5, bush: 1.2, fog: 390, shadowR: 55, hiDist: 45, bats: 40, embers: 110, wisps: 38 },
 };
 const STORM = [
-  { w: 50, s: 40, f: 0.55, d: 1 }, { w: 40, s: 35, f: 0.32, d: 2 }, { w: 34, s: 30, f: 0.17, d: 4 },
-  { w: 28, s: 25, f: 0.08, d: 6 }, { w: 22, s: 20, f: 0.03, d: 8 }, { w: 14, s: 18, f: 0, d: 10 },
+  { w: 120, s: 70, f: 0.60, d: 1 }, { w: 100, s: 60, f: 0.36, d: 2 }, { w: 85, s: 55, f: 0.20, d: 4 },
+  { w: 70, s: 45, f: 0.10, d: 6 }, { w: 55, s: 40, f: 0.045, d: 8 }, { w: 45, s: 40, f: 0, d: 10 },
 ];
 const GRAV = 24, STEP = 0.62, CELL = 16, GRACE = 14, BOT_RATE = 2.4;
 const SUN = new THREE.Vector3(0.55, 0.36, 0.45).normalize();
@@ -157,7 +174,7 @@ function sfx(name, vol = 1) {
 }
 
 // ================= RENDERER =================
-let settings = { map: store.get('map', 1), outfit: store.get('outfit', 0), diff: store.get('diff', 'normale'), gfx: store.get('gfx', isTouch ? 'media' : 'alta') };
+let settings = { rm: store.get('rm', matchMedia('(prefers-reduced-motion: reduce)').matches), map: store.get('map', 1), outfit: store.get('outfit', 0), diff: store.get('diff', 'normale'), gfx: store.get('gfx', isTouch ? 'media' : 'alta') };
 if (!MAPS[settings.map]) settings.map = 1;
 if (!DIFF[settings.diff]) settings.diff = 'normale';
 if (!GFX[settings.gfx]) settings.gfx = 'media';
@@ -536,6 +553,14 @@ function buildHumanGeo(look, hi) {
 const HUMAN_MAT = reg(new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.74, metalness: 0.02 }));
 const HUMAN_GLOW = new THREE.MeshBasicMaterial({ vertexColors: true, toneMapped: false });
 const HUMAN_MATS = [HUMAN_MAT, HUMAN_GLOW];
+const HUMAN_MAT_F = reg(HUMAN_MAT.clone()); HUMAN_MAT_F.emissive.setRGB(1, 1, 1); HUMAN_MAT_F.emissiveIntensity = 0.85;   // 60 ms white hit flash
+const HUMAN_MATS_F = [HUMAN_MAT_F, HUMAN_GLOW];
+function hitFlash(b, dt) {
+  const m = b.model; if (!m.baseMat) m.baseMat = m.mesh.material;
+  if (b.flashT > 0) b.flashT -= dt; if (b.jerkT > 0) b.jerkT -= dt;
+  const want = b.flashT > 0 && b.alive ? (Array.isArray(m.baseMat) ? HUMAN_MATS_F : HUMAN_MAT_F) : m.baseMat;
+  if (m.mesh.material !== want) m.mesh.material = want;
+}
 const HG_CACHE = {};
 function randomLook(rng = R) {
   const oi = (rng() * LOOKS.length) | 0, o = LOOKS[oi];
@@ -1532,7 +1557,7 @@ function buildWorld(mapIndex, diff) {
     if (!snowy && kind !== 'palm' && rng() < 0.17) kind = 'dead';
     const s = 0.75 + rng() * 0.55, variant = (rng() * 3) | 0, key = kind + (snowy ? 'S' : '') + variant;
     q4.setFromAxisAngle(up, rng() * 6.28);
-    const tr = { x, z, y: h - 0.15, s, kind, key, hp: 4, alive: true, m: new THREE.Matrix4().compose(V.set(x, h - 0.15, z), q4, V2.set(s, s, s)) };
+    const tr = { x, z, y: h - 0.15, s, kind, key, hp: BUILD_COST.treeHits, alive: true, m: new THREE.Matrix4().compose(V.set(x, h - 0.15, z), q4, V2.set(s, s, s)) };
     tr.col = addCircleCol(x, z, (kind === 'round' ? 0.3 : kind === 'pine' || kind === 'dead' ? 0.27 : 0.22) * s, tr.y, tr.y + 7 * s, { tree: tr });
     (treeItems[key] = treeItems[key] || []).push(tr); W.trees.push(tr); i++;
   }
@@ -1655,13 +1680,13 @@ const CONS = {
   caramelle: { name: 'Caramelle', color: 0xff7a1a },
 };
 function randomLoot(rng = R, bonus = 0) {
-  const r = rng();
-  if (r < 0.58) { const kind = pickW(KINDS, KIND_W, rng); return { type: 'gun', kind, rar: rollRarity(rng, bonus), mag: WEAPONS[kind].mag }; }
-  if (r < 0.72) return { type: 'munizioni', n: 30 };
-  if (r < 0.84) return { type: 'bende', n: 2 };
-  if (r < 0.94) return { type: 'scudo', n: 1 };
-  if (r < 0.97) return { type: 'caramelle', n: 1 };
-  return { type: 'legno', n: 30 };
+  const T = LOOT_TABLE.terra, Q = LOOT_TABLE.quantita; let r = rng() * 100;
+  for (const type in T) {
+    r -= T[type]; if (r >= 0) continue;
+    if (type === 'gun') { const kind = pickW(KINDS, KIND_W, rng); return { type: 'gun', kind, rar: rollRarity(rng, bonus), mag: WEAPONS[kind].mag }; }
+    return { type, n: Q[type] };
+  }
+  return { type: 'munizioni', n: Q.munizioni };
 }
 const beamGeo = new THREE.CylinderGeometry(0.05, 0.05, 6, 6, 1, true);
 const beamMats = {};
@@ -2236,15 +2261,19 @@ const hud = {
   hpFill: $('#hpFill'), shFill: $('#shFill'), hpN: $('#hpN'), shN: $('#shN'), slots: $('#slots'), mag: $('#magN'), res: $('#resN'), wood: $('#woodN'),
   heal: $('#healN'), shield: $('#shieldN'), bHeal: $('#bHeal'), bShield: $('#bShield'), cross: $('#cross'), prompt: $('#prompt'), pickBtn: $('#pickBtn'),
   useBar: $('#useBar'), useTxt: $('#useTxt'), useFill: $('#useFill'), drop: $('#dropWrap'), alt: $('#alt'), vign: $('#vignette'), tint: $('#stormTint'), scope: $('#scope'),
-  mini: $('#mini'), bigmap: $('#bigmap'), bigC: $('#bigC')
+  mini: $('#mini'), bigmap: $('#bigmap'), bigC: $('#bigC'), sea: $('#seaWarn')
 };
 const miniCtx = hud.mini.getContext('2d'), bigCtx = hud.bigC.getContext('2d');
 let bannerT = 0, locT = 0, lastLoc = null;
+// game-clock timers: they advance only while the match runs (pause stops them), cleared on every new match
+const LATER = [];
+function later(s, fn) { LATER.push({ t: s, fn }); }
+function tickLater(dt) { for (let i = LATER.length - 1; i >= 0; i--) { const L = LATER[i]; if (!L) continue; L.t -= dt; if (L.t <= 0) { LATER.splice(i, 1); L.fn(); } } }
 function banner(txt, dur = 3) { hud.banner.textContent = txt; hud.banner.style.opacity = 1; bannerT = dur; }
 function feed(txt, cls) {
   const d = document.createElement('div'); d.textContent = txt; if (cls) d.className = cls; hud.feed.prepend(d);
   while (hud.feed.children.length > 5) hud.feed.lastChild.remove();
-  setTimeout(() => { d.style.opacity = 0; setTimeout(() => d.remove(), 600); }, 5000);
+  later(5, () => { d.style.opacity = 0; later(0.6, () => d.remove()); });
 }
 const ICONS = {
   piccone: '<path d="M8 22 L32 7" stroke="currentColor" stroke-width="4" stroke-linecap="round" fill="none"/><path d="M20 3 Q34 -2 45 11 L41 13 Q33 5 23 8Z"/>',
@@ -2298,7 +2327,10 @@ function updateHUD(dt) {
   hud.tint.style.opacity = out && P.phase === 'ground' ? 1 : 0;
   hud.drop.style.display = P.phase === 'airship' ? 'block' : 'none';
   hud.alt.style.display = P.phase === 'fall' || P.phase === 'glide' ? 'block' : 'none';
-  if (P.phase === 'fall' || P.phase === 'glide') setTxt(hud.alt, 'alt', Math.max(0, Math.round(P.y - W.getH(P.x, P.z))) + ' m');
+  if (P.phase === 'fall' || P.phase === 'glide') setTxt(hud.alt, 'alt', 'Atterraggio tra ' + Math.max(0, Math.round(P.y - Math.max(W.getH(P.x, P.z), -0.6))) + ' m');
+  const sw = P.alive && (P.phase === 'fall' || P.phase === 'glide') ? P.seaWarn : 0;
+  hud.sea.style.display = sw ? 'block' : 'none'; if (sw) setTxt(hud.sea, 'sea', sw === 1 ? 'Sei sopra il mare: plana verso terra!' : 'Stai cadendo in mare!');
+  if (P.phase === 'airship' && W.airship && W.airship.t / W.airship.dur > 0.78 && !W.lateWarn) { W.lateWarn = true; banner("Lanciati prima che il dirigibile lasci l'isola!", 3); }
   if (P.useT > 0) { hud.useBar.style.display = 'block'; setTxt(hud.useTxt, 'use', P.useKind === 'bende' ? 'Bende…' : 'Scudo…'); hud.useFill.style.width = (100 * (1 - P.useT / P.useMax)) + '%'; }
   else hud.useBar.style.display = 'none';
 }
@@ -2330,8 +2362,8 @@ function drawMap(ctx, size, big) {
 function newPlayer() {
   const m = makeHuman(outfitLook(settings.outfit));
   P = { isBot: false, name: 'Tu', alive: true, x: 0, y: 150, z: 0, vy: 0, onGround: false, blocked: false, swim: false, hp: 100, shield: 0,
-    slots: [{ kind: 'piccone', rar: 0, mag: 0 }, null, null, null, null], cur: 0, ammo: 36, wood: 40, bende: 0, scudi: 0, phase: 'airship',
-    fireT: 0, reloadT: 0, useT: 0, useMax: 1, useKind: null, aim: false, kills: 0, dmg: 0, landT: 0, moving: false, swingT: 0, recoil: 0, hurtT: 0,
+    slots: [{ kind: 'piccone', rar: 0, mag: 0 }, null, null, null, null], cur: 0, ammo: 36, wood: BUILD_COST.woodStart, bende: 0, scudi: 0, phase: 'airship',
+    fireT: 0, reloadT: 0, useT: 0, useMax: 1, useKind: null, aim: false, kills: 0, dmg: 0, landT: 0, moving: false, swingT: 0, recoil: 0, hurtT: 0, kick: 0, killmT: 0, shake: 0, dipT: 9, dipA: 0, bobPh: 0, bobA: 0, wdx: 0, wdz: 0, seaWarn: 0,
     model: m, animT: 0, speedNow: 0, deathT: 0, startT: 0 };
   setGun(m, 'piccone', 0); W.scene.add(m.g);
 }
@@ -2389,17 +2421,18 @@ function playerFire() {
       let dmg = w.dmg * RAR[it.rar].m * (h.head ? w.head : 1);
       if (it.kind === 'pompa' || it.kind === 'mitra') dmg *= clamp(1.2 - h.t / w.range, 0.4, 1);
       damageBot(h.ch, dmg, P, it.kind, h.head, hx, hy, hz); hits++; head = head || h.head;
-      burst(hx, hy, hz, 0xff5050, 4, 3);
+      burst(hx, hy, hz, 0xffe7a0, 5, 4);
     } else if (h.kind === 'col') {
       if (h.col.built) damageBuilt(h.col.built, w.dmg * RAR[it.rar].m);
       if (h.col.pumpkin) smashPumpkin(h.col.pumpkin);
-      burst(hx, hy, hz, h.col.tree ? 0x8a5a2b : 0xd8d0c0, 3, 2.5);
-    } else if (h.kind === 'terrain') burst(hx, hy, hz, 0x9a8a60, 3, 2.5);
+      burst(hx, hy, hz, h.col.tree || h.col.built ? 0x8a5a2b : 0xd8d0c0, 3, 2.5); burst(hx, hy, hz, 0xffd27a, 2, 5);
+    } else if (h.kind === 'terrain') { burst(hx, hy, hz, 0x9a8a60, 3, 2.5); burst(hx, hy, hz, 0xffd27a, 2, 5); }
   }
   if (hits) { sfx(head ? 'head' : 'hit', 0.9); P.hitmT = 0.15; P.hitHead = head; }
   P.recoil = Math.min(0.12, P.recoil + (it.kind === 'cecchino' ? 0.08 : it.kind === 'pompa' ? 0.06 : 0.02));
-  pitch = clamp(pitch + (it.kind === 'cecchino' ? 0.03 : it.kind === 'pompa' ? 0.025 : 0.006), -1.25, 1.1);
-  if (it.mag === 0 && P.ammo > 0) setTimeout(() => { if (P && P.alive && P.slots[P.cur] === it && it.mag === 0) startReload(); }, 250);
+  { const k = ({ cecchino: 0.06, pompa: 0.045, pistola: 0.02, assalto: 0.014, mitra: 0.009 }[it.kind] || 0.012) * (P.aim ? 0.5 : 1) * (settings.rm ? 0.5 : 1);
+    const np = clamp(pitch + k, -1.25, 1.1); P.kick += np - pitch; pitch = np; }
+  if (it.mag === 0 && P.ammo > 0) later(0.25, () => { if (P && P.alive && P.slots[P.cur] === it && it.mag === 0) startReload(); });
 }
 function pickaxeSwing() {
   P.fireT = WEAPONS.piccone.rate; P.swingT = 0.3; sfx('swing', 0.8);
@@ -2415,10 +2448,10 @@ function pickaxeSwing() {
     if (c.t === 1 && c.tree) { const dx = c.x - P.x, dz = c.z - P.z, d = Math.hypot(dx, dz) - c.r; if (d < td && (dx * fx + dz * fz) / (Math.hypot(dx, dz) || 1) > 0.35) { td = d; tree = c; } }
   }
   const h = rayWorld(P.x, P.y + 1.3, P.z, fx, 0, fz, 3, {});
-  if (h.kind === 'col' && h.col.built && (!tree || h.t < td)) { damageBuilt(h.col.built, 60); sfx('wallhit'); return; }
+  if (h.kind === 'col' && h.col.built && (!tree || h.t < td)) { damageBuilt(h.col.built, BUILD_COST.pickaxeVsBuild); sfx('wallhit'); return; }
   if (tree) {
-    const t = tree.tree; t.hp--; P.wood = Math.min(999, P.wood + 12); sfx('chop'); burst(t.x, t.y + 1.5, t.z, 0x8a5a2b, 6, 3);
-    dmgNum(t.x, t.y + 2.2, t.z, 12, false, false); W.nums[W.nums.length - 1].txt = '+12'; W.nums[W.nums.length - 1].col = '#ffcf8a';
+    const t = tree.tree; t.hp--; P.wood = Math.min(BUILD_COST.woodMax, P.wood + BUILD_COST.woodPerHit); sfx('chop'); burst(t.x, t.y + 1.5, t.z, 0x8a5a2b, 6, 3);
+    dmgNum(t.x, t.y + 2.2, t.z, BUILD_COST.woodPerHit, false, false); W.nums[W.nums.length - 1].txt = '+' + BUILD_COST.woodPerHit; W.nums[W.nums.length - 1].col = '#ffcf8a';
     if (t.hp <= 0) removeTree(t);
   }
 }
@@ -2430,7 +2463,7 @@ function removeTree(t) {
 function damagePlayer(dmg, src) {
   if (!P.alive) return;
   let d = dmg; if (P.shield > 0) { const s = Math.min(P.shield, d); P.shield -= s; d -= s; }
-  P.hp -= d; P.hurtT = Math.min(0.6, P.hurtT + 0.25); sfx('hurt', 0.7);
+  P.hp -= d; P.hurtT = Math.min(0.6, P.hurtT + 0.25); sfx('hurt', 0.7); P.shake = Math.min(1, P.shake + 0.25 + dmg / 40);
   if (src && src.x !== undefined) { const a = Math.atan2(-(src.x - P.x), -(src.z - P.z)); W.ind.push({ a, t: 1.2 }); }
   if (P.useT > 0 && dmg > 5) { /* keep healing, like the classic games? cancel */ P.useT = 0; P.useKind = null; }
   if (P.hp <= 0) playerDie(src);
@@ -2438,12 +2471,12 @@ function damagePlayer(dmg, src) {
 function playerDie(src) {
   P.hp = 0; P.alive = false; P.deathT = 0;
   const place = W.aliveBots + 1;
-  feed((src && src.isBot ? src.name : 'La tempesta') + ' ha eliminato Te', 'dead');
+  feed(src && src.isBot ? 'Eliminato da ' + src.name : 'Eliminato dalla tempesta', 'dead');
   burst(P.x, P.y + 1, P.z, 0xffc53d, 24, 5);
   P.deadT = 0; setAim(false);
   // drop inventory
   P.slots.forEach(it => { if (it && it.kind !== 'piccone') spawnLoot(P.x, P.y, P.z, { type: 'gun', kind: it.kind, rar: it.rar, mag: it.mag }, (R() - 0.5) * 4, (R() - 0.5) * 4); });
-  setTimeout(() => endMatch(false, place, src), 1600);
+  later(1.6, () => endMatch(false, place, src));
 }
 function tryPickup(L) {
   const it = L.item;
@@ -2461,7 +2494,7 @@ function tryPickup(L) {
   } else if (it.type === 'munizioni') { P.ammo = Math.min(999, P.ammo + it.n); }
   else if (it.type === 'bende') { P.bende += it.n; }
   else if (it.type === 'scudo') { P.scudi += it.n; }
-  else if (it.type === 'legno') { P.wood = Math.min(999, P.wood + it.n); }
+  else if (it.type === 'legno') { P.wood = Math.min(BUILD_COST.woodMax, P.wood + it.n); }
   else if (it.type === 'caramelle') { if (P.hp < 100) { P.hp = Math.min(100, P.hp + 15); feed('Caramella: +15 salute', 'me'); } else { P.shield = Math.min(100, P.shield + 15); feed('Caramella: +15 scudo', 'me'); } sfx('heal', 0.7); burst(P.x, P.y + 1.2, P.z, 0xff9a3a, 8, 2); }
   L.taken = true; W.scene.remove(L.m); sfx('pick', 0.8);
 }
@@ -2502,10 +2535,9 @@ function updateLoot(dt) {
 }
 function openChest(c) {
   c.opened = true; sfx('chest'); burst(c.x, c.y + 0.8, c.z, 0xffd23a, 16, 3);
-  const items = [randomLoot(R, 1), { type: 'munizioni', n: 30 }, { type: 'legno', n: 20 }];
-  const k = randomLoot(R, 1); if (k.type !== 'gun') items[0] = { type: 'gun', kind: pickW(KINDS, KIND_W), rar: rollRarity(R, 1), mag: 0 }; else items[0] = k;
-  if (items[0].type === 'gun') items[0].mag = WEAPONS[items[0].kind].mag;
-  if (R() < 0.6) items.push(R() < 0.5 ? { type: 'bende', n: 2 } : { type: 'scudo', n: 1 });
+  const F = LOOT_TABLE.forziere, kind = pickW(KINDS, KIND_W);
+  const items = [{ type: 'gun', kind, rar: rollRarity(R, 1), mag: WEAPONS[kind].mag }, { type: 'munizioni', n: F.munizioni }, { type: 'legno', n: F.legno }];
+  if (R() * 100 < F.cura) items.push(R() * 100 < F.bende ? { type: 'bende', n: 2 } : { type: 'scudo', n: 1 });
   items.forEach((it, i) => { const a = i / items.length * 6.28 + R(); spawnLoot(c.x, c.y + 0.6, c.z, it, Math.cos(a) * 2.6, Math.sin(a) * 2.6).cool = 0.45; });
 }
 
@@ -2514,7 +2546,7 @@ const woodMats = [0xc29a6a, 0x9a7448, 0x6e5030].map(c => reg(new THREE.MeshStand
 const wallGeoX = new THREE.BoxGeometry(0.3, 4, 4), wallGeoZ = new THREE.BoxGeometry(4, 4, 0.3), rampGeo = new THREE.BoxGeometry(4, 0.25, 4 * Math.SQRT2);
 function build(type) {
   if (!P.alive || (P.phase !== 'ground')) return;
-  if (P.wood < 10) { banner('Serve legno: colpisci gli alberi col piccone', 2); sfx('empty'); return; }
+  if (P.wood < BUILD_COST[type].wood) { banner('Serve legno: colpisci gli alberi col piccone', 2); sfx('empty'); return; }
   const fx = -Math.sin(yaw), fz = -Math.cos(yaw);
   let dx = 0, dz = 0; if (Math.abs(fx) > Math.abs(fz)) dx = Math.sign(fx); else dz = Math.sign(fz);
   const ix = Math.floor(P.x / 4), iz = Math.floor(P.z / 4), base = Math.round((P.y - 0.08) * 4) / 4;
@@ -2526,16 +2558,16 @@ function build(type) {
     const key = 'w' + x0 + ',' + z0 + ',' + Math.round(base);
     if (W.builtKeys.has(key)) return;
     const m = new THREE.Mesh(dx ? wallGeoX : wallGeoZ, woodMats[0]); m.position.set((x0 + x1) / 2, base + 2, (z0 + z1) / 2); m.castShadow = m.receiveShadow = true; W.scene.add(m);
-    b = { key, m, hp: 150, max: 150 }; b.col = addBoxCol(x0, base, z0, x1, base + 4, z1, { built: b });
+    b = { key, m, hp: BUILD_COST.wall.hp, max: BUILD_COST.wall.hp }; b.col = addBoxCol(x0, base, z0, x1, base + 4, z1, { built: b });
   } else {
     const cx = (ix + dx) * 4 + 2, cz = (iz + dz) * 4 + 2, key = 'r' + cx + ',' + cz + ',' + Math.round(base);
     if (W.builtKeys.has(key)) return;
     const m = new THREE.Mesh(rampGeo, woodMats[0]); m.rotation.order = 'YXZ'; m.rotation.y = Math.atan2(-dx, -dz); m.rotation.x = Math.PI / 4;
     m.position.set(cx, base + 2, cz); m.castShadow = m.receiveShadow = true; W.scene.add(m);
-    b = { key, m, hp: 140, max: 140 };
+    b = { key, m, hp: BUILD_COST.ramp.hp, max: BUILD_COST.ramp.hp };
     b.col = { t: 2, cx, cz, dx, dz, base, bx0: cx - 2, bx1: cx + 2, bz0: cz - 2, bz1: cz + 2, built: b }; gInsert(b.col);
   }
-  W.builtKeys.add(b.key); W.built.push(b); P.wood -= 10; sfx('build', 0.9);
+  W.builtKeys.add(b.key); W.built.push(b); P.wood -= BUILD_COST[type].wood; sfx('build', 0.9);
   burst(b.m.position.x, b.m.position.y, b.m.position.z, 0xc9935a, 6, 2);
 }
 function damageBuilt(b, dmg) {
@@ -2546,7 +2578,7 @@ function damageBuilt(b, dmg) {
 
 // ================= BOTS =================
 function spawnBots() {
-  const names = shuffle(NAMES.slice()); const D = W.diff;
+  const names = shuffle(NAMES.slice(0, 20)).concat(shuffle(NAMES.slice(20))); const D = W.diff; W.saidN = {};
   W.lookPool = []; for (let i = 0; i < 16; i++) W.lookPool.push(i % 2 ? randomLook() : outfitLook(FIRST_MONSTER + (i >> 1) % 8));
   for (let i = 0; i < W.map.bots; i++) {
     let x = 0, z = 0, g = 0;
@@ -2570,17 +2602,32 @@ function damageBot(b, dmg, src, kind, head, hx, hy, hz) {
   if (!b.alive) return;
   let d = dmg, sh = false; if (b.shield > 0) { const s = Math.min(b.shield, d); b.shield -= s; d -= s; sh = true; }
   b.hp -= d;
-  if (src === P) { P.dmg += dmg; dmgNum(hx !== undefined ? hx : b.x, (hy !== undefined ? hy : b.y + 1.8) + 0.3, hz !== undefined ? hz : b.z, dmg, head, sh && d <= 0); }
-  if (src && src.alive && (!b.target || R() < 0.5) && src !== b) { b.target = src; b.react = Math.min(b.react, 0.25); b.los = true; }
+  if (src === P) { b.flashT = 0.06; b.jerkT = 0.12; { const dx = b.x - P.x, dz = b.z - P.z, l = Math.hypot(dx, dz) || 1; b.jx = dx / l; b.jz = dz / l; } P.dmg += dmg; dmgNum(hx !== undefined ? hx : b.x, (hy !== undefined ? hy : b.y + 1.8) + 0.3, hz !== undefined ? hz : b.z, dmg, head, sh && d <= 0); }
+  if (src && src.alive && (!b.target || R() < 0.5) && src !== b && !(src.isBot && matchT < (b.coolUntil || 0) && R() < BOT_VS_BOT.retaliateSkip)) { b.target = src; b.react = Math.min(b.react, 0.25); b.los = true; }
   if (b.hp <= 0) killBot(b, src, kind);
 }
+// Lumen's lines (only those that fit: no monsters in the match, no gore). {k} = who eliminates, {g} = who is out
+const FEED_KILL = ['{k} ha eliminato {g} con stile gotico.', '{g} è stato eliminato da {k}. Dolcetto o scherzetto? Scherzetto.', '{k} ha spento la zucca di {g}.',
+  '{k} ha vinto il duello al chiaro di luna contro {g}.', '{k} e {g} si sono incontrati. Solo uno ne è uscito pettinato.', '{g} è inciampato in una lapide. E poi in {k}.',
+  '{k} ha trasformato {g} in un racconto da falò.'];
+const FEED_STORM = ['{g} è stato travolto dalla tempesta.', '{g} ha scoperto che la nebbia non perdona.', '{g} è uscito dalla zona sicura per raccogliere caramelle.', '{g} è tornato alla lobby avvolto in un lenzuolo.'];
+const END_WIN = ["Ultimo superstite dell'isola! Anche la tempesta si inchina.", 'Vittoria! Le zucche brillano solo per te.', "Sei sopravvissuto alla notte più lunga dell'anno.", 'Campione della Tempesta! Le caramelle sono tutte tue.', 'I mostri tornano a dormire: hai vinto tu.'];
+const END_LOSE = ['Eliminato! Ma i fantasmi dicono che eri bravo.', 'Posizione {n}. Non male per una notte di Halloween.', 'Sei tornato in lobby col mantello un po\' strappato. Rivincita?', 'Niente paura: la prossima zucca è la tua.'];
+const END_STORM = ['La tempesta ha vinto stavolta. Riprova prima dell\'alba!'];
+const fillTxt = (s, o) => s.replace(/\{(\w)\}/g, (_, k) => o[k] ?? '');
 function killBot(b, killer, kind) {
   b.alive = false; b.deadT = 1.1; b.model.glider.visible = false; W.aliveBots--;
   burst(b.x, b.y + 1.2, b.z, 0xffc53d, 18, 4);
   const wname = kind === 'storm' ? '' : ' (' + (kind === 'piccone' ? 'piccone' : WEAPONS[kind].name.toLowerCase()) + ')';
-  if (killer === P) { P.kills++; sfx('kill'); feed('Hai eliminato ' + b.name + wname, 'me'); banner('Eliminato ' + b.name + '!', 1.6); }
-  else if (killer && killer.isBot) { killer.kills++; feed(killer.name + ' ha eliminato ' + b.name); }
-  else feed('La tempesta ha eliminato ' + b.name);
+  if (killer === P) {
+    P.kills++; sfx('kill'); feed('Hai eliminato ' + b.name + wname, 'me'); banner('Hai eliminato ' + b.name, 1.6);
+    P.killmT = 0.4; P.hitmT = 0; if (!settings.rm) W.slowT = 0.22;
+    if (matchT - (P.lastKillT ?? -99) < 5) feed('Doppia eliminazione! Non conosci la paura.', 'me'); P.lastKillT = matchT;
+  } else if (killer && killer.isBot) {
+    killer.kills++; feed(fillTxt(pick(FEED_KILL), { k: killer.name, g: b.name }));
+    if (matchT - (killer.lastKillT ?? -99) < 5) feed(fillTxt('Doppia eliminazione! {k} non conosce la paura.', { k: killer.name }), 'ev'); killer.lastKillT = matchT;
+  } else feed(fillTxt(pick(FEED_STORM), { g: b.name }));
+  { const left = W.aliveBots + (P.alive ? 1 : 0); if ([50, 25, 10, 5, 3].includes(left) && !W.saidN[left]) { W.saidN[left] = true; feed('Rimangono ' + left + ' giocatori. Le zucche osservano.', 'ev'); } }
   spawnLoot(b.x, b.y, b.z, { type: 'gun', kind: b.w.kind, rar: b.w.rar, mag: WEAPONS[b.w.kind].mag }, (R() - 0.5) * 3, (R() - 0.5) * 3);
   spawnLoot(b.x, b.y, b.z, { type: 'munizioni', n: 30 }, (R() - 0.5) * 3, (R() - 0.5) * 3);
   if (R() < 0.5) spawnLoot(b.x, b.y, b.z, R() < 0.5 ? { type: 'bende', n: 2 } : { type: 'scudo', n: 1 }, (R() - 0.5) * 3, (R() - 0.5) * 3);
@@ -2591,16 +2638,24 @@ function botThink(b) {
   if (b.target && (!b.target.alive || (b.target === P && P.phase !== 'ground'))) { b.target = null; b.los = false; }
   if (canFight) {
     let best = null, bd = D.detect * D.detect;
-    const bb = b.passive ? 0 : bd * 0.5;
+    const bb = (b.passive || matchT < (b.coolUntil || 0)) ? 0 : Math.min(bd, (BOT_VS_BOT.aggro + BOT_VS_BOT.aggroPhase * Math.min(s.phase, 5)) ** 2);
     for (const o of W.bots) { if (o === b || !o.alive || o.landing || o.onAirship) continue; const dx = o.x - b.x, dz = o.z - b.z, d2 = dx * dx + dz * dz; if (d2 < bb && d2 < bd) { bd = d2; best = o; } }
     if (P.alive && P.phase === 'ground' && matchT > P.landT + 2.5) { const d2 = (P.x - b.x) ** 2 + (P.z - b.z) ** 2; if (d2 < bd * 1.1) { bd = d2; best = P; } }
     if (b.target) { const d2 = (b.target.x - b.x) ** 2 + (b.target.z - b.z) ** 2; if (d2 < (D.detect * 1.4) ** 2 && (!best || d2 < bd * 2.2)) best = b.target; }
     if (best) {
       const vis = !blockedStatic(b, b.y + 1.6, best, best.y + 1.3);
-      if (vis) { if (best !== b.target) { b.target = best; b.react = D.react * (0.7 + R() * 0.6); } b.los = true; b.lostT = 0; }
+      if (vis) { if (best !== b.target) { const DR = best === P ? D : DIFF.normale; b.target = best; b.engT = 0; b.burstN = 0; b.react = DR.react * (0.7 + R() * 0.6) + DR.windup + (best === P && b.w.kind === 'cecchino' ? D.sniperWarn : 0); } b.los = true; b.lostT = 0; }
       else if (best === b.target) { b.los = false; if (++b.lostT > 8) { b.target = null; b.lostT = 0; } }
     } else if (b.target) { b.los = false; if (++b.lostT > 5) { b.target = null; b.lostT = 0; } }
   }
+  if (b.target && b.target.isBot) {                                     // disimpegno bot contro bot
+    b.fightT = (b.fightT || 0) + 0.5;
+    if ((b.fightT > BOT_VS_BOT.minFight || b.hp < 50) && R() < BOT_VS_BOT.disengage) {
+      const o = b.target, until = matchT + BOT_VS_BOT.cooldown * Math.max(0.3, 1 - BOT_VS_BOT.coolPhase * s.phase) * (0.8 + R() * 0.4);
+      b.target = null; b.los = false; b.fightT = 0; b.coolUntil = until; b.wx = b.x - (o.x - b.x) * 2; b.wz = b.z - (o.z - b.z) * 2;
+      if (o.target === b) { o.target = null; o.los = false; o.fightT = 0; o.coolUntil = until; }
+    }
+  } else b.fightT = 0;
   const curOut = Math.hypot(s.cx - b.x, s.cz - b.z) > s.r - 3;
   const dxs = s.nx - b.x, dzs = s.nz - b.z, ds = Math.hypot(dxs, dzs) || 1;
   const needMove = s.state !== 'done' && ds > s.nr * 0.75 && (s.state === 'shrink' || s.timer < 22);
@@ -2629,35 +2684,72 @@ function botThink(b) {
   const l = Math.hypot(mx, mz); if (l > 1) { mx /= l; mz /= l; }
   b.mvx = mx; b.mvz = mz;
 }
+// ===== Bot: mira vera + proiettili visibili con tempo di volo (schivabili) =====
+const BOT_SHOTS = [];
+function gauss() { return (R() + R() + R() - 1.5) * 1.414; }            // circa N(0,1)
+function charVel(T) { if (T.isBot) { const sp = T.flee ? 6.8 : 5.3; return [T.mvx * sp, T.mvz * sp]; } return [P.vx || 0, P.vz || 0]; }
 function botShoot(b) {
-  const w = WEAPONS[b.w.kind], T = b.target;
-  b.mag--; b.fireT = w.rate * BOT_RATE * (0.75 + R() * 0.7);
-  if (b.mag <= 0) b.reloadT = w.reload * 1.2;
-  const ex = b.x, ey = b.y + 1.5, ez = b.z, tx = T.x + (R() - 0.5) * 0.6, ty = T.y + 1.1 + R() * 0.6, tz = T.z + (R() - 0.5) * 0.6;
-  const dx = tx - ex, dy = ty - ey, dz = tz - ez, d = Math.hypot(dx, dy, dz) || 1;
+  const w = WEAPONS[b.w.kind], T = b.target, D = DIFF[W.diff], bvb = T !== P, DA = bvb ? DIFF.normale : D;
+  b.mag--; b.burstN = (b.burstN || 0) + 1;
+  b.fireT = w.rate * DA.rateK * (0.85 + R() * 0.3);
+  if (b.burstN >= DA.burst) { b.burstN = 0; b.fireT += DA.burstPause * (0.8 + R() * 0.4); }
+  if (b.mag <= 0) { b.reloadT = w.reload * 1.2; b.burstN = 0; }
+  const ex = b.x, ey = b.y + 1.5, ez = b.z, spd = w.pspd * D.pspdK;
+  const ty0 = T.y + 0.9 + R() * 0.7, d0 = Math.hypot(T.x - ex, ty0 - ey, T.z - ez) || 1, tf = d0 / spd;
+  const [vx, vz] = charVel(T);
+  const ax = T.x + vx * tf * DA.lead, az = T.z + vz * tf * DA.lead;   // anticipo parziale
+  let dx = ax - ex, dy = ty0 - ey, dz = az - ez; const d = Math.hypot(dx, dy, dz) || 1; dx /= d; dy /= d; dz /= d;
+  const k = Math.min(1, (b.engT || 0) / DA.settle);                    // la mira si "assesta" col tempo
+  const sig = (DA.aimErr + (DA.aimMin - DA.aimErr) * k) * Math.PI / 180 / w.acc * (bvb ? BOT_VS_BOT.errK : 1);
   const dP = Math.hypot(b.x - P.x, b.z - P.z);
   sfx(b.w.kind, clamp(1 - dP / 130, 0, 1) * 0.75);
-  if (dP < 130) muzzle(ex + dx / d * 0.85, ey - 0.05, ez + dz / d * 0.85);
-  const h = rayWorld(ex, ey, ez, dx / d, dy / d, dz / d, d, { tStart: 0.7, tstep: 2 });
-  const showT = dP < 100 || T === P;
-  if (h.kind === 'col' || h.kind === 'terrain') {
-    if (h.kind === 'col' && h.col.built) damageBuilt(h.col.built, w.dmg * (w.pellets || 1) * 0.6);
-    if (h.kind === 'col' && h.col.pumpkin) smashPumpkin(h.col.pumpkin);
-    if (showT) tracer(ex, ey, ez, ex + dx / d * h.t, ey + dy / d * h.t, ez + dz / d * h.t, true);
-    return;
+  if (dP < 130) muzzle(ex + dx * 0.85, ey - 0.05, ez + dz * 0.85);
+  const yawE = gauss() * sig, pitE = gauss() * sig * 0.7, base = w.dmg * RAR[b.w.rar].m;
+  for (let i = 0; i < (w.pellets || 1); i++) {
+    const py = yawE + (w.pellets ? (R() - 0.5) * 2 * w.spread : 0), pp = pitE + (w.pellets ? (R() - 0.5) * 2 * w.spread : 0);
+    const c = Math.cos(py), s = Math.sin(py);
+    let rx = dx * c - dz * s, rz = dx * s + dz * c, ry = dy + pp; const l = Math.hypot(rx, ry, rz); rx /= l; ry /= l; rz /= l;
+    BOT_SHOTS.push({ x: ex + rx * 0.8, y: ey + ry * 0.8, z: ez + rz * 0.8, vx: rx * spd, vy: ry * spd, vz: rz * spd, left: w.range,
+      owner: b, T, kind: b.w.kind, base, dmg: base * (bvb ? BOT_VS_BOT.dmgK : 1), head: w.head, show: i < 3 });
   }
-  let p = DIFF[W.diff].acc * w.acc * clamp(1.2 - d / w.range, 0.12, 1);
-  if (T === P) { if (P.speedNow > 5) p *= 0.78; if (!P.onGround) p *= 0.7; } else p *= 0.45;
-  let dmg = 0, head = false;
-  for (let i = 0; i < (w.pellets || 1); i++) if (R() < p) { const hd = R() < 0.1; head = head || hd; dmg += w.dmg * RAR[b.w.rar].m * (hd ? w.head : 1); }
-  if (showT) {
-    const miss = dmg <= 0 ? 1.5 : 0;
-    tracer(ex, ey, ez, tx + (R() - 0.5) * miss * 2, ty + (R() - 0.5) * miss, tz + (R() - 0.5) * miss * 2, true);
+}
+function updateBotShots(dt) {
+  let shown = 0;
+  for (let i = BOT_SHOTS.length - 1; i >= 0; i--) {
+    const p = BOT_SHOTS[i], sp = Math.hypot(p.vx, p.vy, p.vz), step = Math.min(sp * dt, p.left);
+    const ux = p.vx / sp, uy = p.vy / sp, uz = p.vz / sp;
+    let best = step, hit = null;
+    for (const ch of [p.T, P]) {
+      if (!ch || !ch.alive || ch === p.owner || (ch === P && P.phase !== 'ground')) continue;
+      if (Math.abs(ch.x - p.x) > step + 3 || Math.abs(ch.z - p.z) > step + 3) continue;
+      const r = rayChar(p.x, p.y, p.z, ux, uy, uz, ch); if (r && r.t >= 0 && r.t <= best) { best = r.t; hit = { ch, head: r.head }; }
+    }
+    const h = rayWorld(p.x, p.y, p.z, ux, uy, uz, best, { tstep: 1.5 });
+    if (h.kind === 'col' || h.kind === 'terrain') {
+      if (h.kind === 'col' && h.col.built) damageBuilt(h.col.built, p.base * BUILD_COST.botVsBuild);
+      if (h.kind === 'col' && h.col.pumpkin) smashPumpkin(h.col.pumpkin);
+      BOT_SHOTS.splice(i, 1); continue;
+    }
+    if (hit) {
+      let dmg = p.dmg * (hit.head ? p.head : 1);
+      if (p.kind === 'pompa' || p.kind === 'mitra') dmg *= clamp(1.2 - (WEAPONS[p.kind].range - p.left) / WEAPONS[p.kind].range, 0.4, 1);
+      if (hit.ch === P) damagePlayer(dmg, p.owner); else damageBot(hit.ch, dmg, p.owner, p.kind, hit.head);
+      BOT_SHOTS.splice(i, 1); continue;
+    }
+    p.x += ux * step; p.y += uy * step; p.z += uz * step; p.left -= step;
+    // scia visibile (riusa i tracer esistenti): lunga 2,5 m, solo vicino alla camera
+    if (p.show && shown < 24) { const cx = p.x - camera.position.x, cz = p.z - camera.position.z; if (cx * cx + cz * cz < 110 * 110) { shown++; tracer(p.x - ux * 2.5, p.y - uy * 2.5, p.z - uz * 2.5, p.x, p.y, p.z, true); } }
+    if (p.left <= 0.01) BOT_SHOTS.splice(i, 1);
   }
-  if (dmg > 0) { if (T === P) damagePlayer(dmg, b); else damageBot(T, dmg, b, b.w.kind, head); }
+}
+// Laser di preavviso del cecchino (solo se mira a te): da chiamare in updateBot, prima del blocco di fuoco
+function sniperWarn(b) {
+  if (b.w.kind !== 'cecchino' || b.target !== P || !b.los || P.phase !== 'ground') return;
+  const warn = DIFF[W.diff].sniperWarn;
+  if ((b.react > 0 && b.react < warn) || (b.react <= 0 && Math.max(b.fireT, b.reloadT) < warn)) tracer(b.x, b.y + 1.5, b.z, P.x, P.y + 1.3, P.z, true);
 }
 function updateBot(b, dt) {
-  const m = b.model;
+  const m = b.model; hitFlash(b, dt);
   if (!b.alive) {
     if (b.deadT > 0) { b.deadT -= dt; const k = clamp((1.1 - b.deadT) / 0.45, 0, 1); m.g.rotation.x = k * k * 1.2; m.g.position.y = b.y + 0.1 * k; m.g.scale.setScalar(clamp(b.deadT / 0.4, 0.01, 1)); animHuman(m, { mode: 'dead' }); m.gun.visible = false; if (b.deadT <= 0) { burst(b.x, b.y + 0.7, b.z, 0x9aa0ab, 22, 2.6); m.g.visible = false; W.scene.remove(m.g); } }
     return;
@@ -2694,7 +2786,7 @@ function updateBot(b, dt) {
     let ty = null;
     if (b.target && b.los) ty = Math.atan2(-(b.target.x - b.x), -(b.target.z - b.z)); else if (b.mvx || b.mvz) ty = Math.atan2(-b.mvx, -b.mvz);
     if (ty !== null) b.yaw = angLerp(b.yaw, ty, 1 - Math.exp(-9 * dt));
-    b.fireT -= dt; b.react -= dt;
+    b.fireT -= dt; b.react -= dt; if (b.target && b.los) b.engT = (b.engT || 0) + dt; sniperWarn(b);
     if (b.reloadT > 0) { b.reloadT -= dt; if (b.reloadT <= 0) b.mag = WEAPONS[b.w.kind].mag; }
     if (b.target && b.los && b.target.alive && b.react <= 0 && b.fireT <= 0 && b.reloadT <= 0 && matchT > GRACE) {
       const d = Math.hypot(b.target.x - b.x, b.target.z - b.z);
@@ -2706,6 +2798,7 @@ function updateBot(b, dt) {
   if (vis) {
     const hd = GFX[settings.gfx].hiDist; setLOD(m, d2 < hd * hd); m.gun.visible = !b.landing && d2 < 130 * 130;
     m.g.position.set(b.x, b.y, b.z); m.g.rotation.y = b.yaw;
+    if (b.jerkT > 0) { const k = b.jerkT / 0.12 * 0.16; m.g.position.x += b.jx * k; m.g.position.z += b.jz * k; }
     const spd = b.landing ? 0 : Math.min(8, Math.hypot(b.x - (b.px ?? b.x), b.z - (b.pz ?? b.z)) / Math.max(dt, 1e-3));
     b.animT += dt * spd * 1.9;
     let tp = 0; if (b.target && b.los) tp = Math.atan2(b.target.y - b.y, Math.hypot(b.target.x - b.x, b.target.z - b.z) || 1);
@@ -2735,7 +2828,7 @@ function stormUpdate(dt) {
   const s = W.storm, k = W.map.timeK;
   if (s.state === 'wait') {
     s.timer -= dt;
-    if (s.timer <= 0) { s.state = 'shrink'; s.fx = s.cx; s.fz = s.cz; s.fr = s.r; s.dur = STORM[s.phase].s * k; s.timer = s.dur; banner('La tempesta stregata si sta chiudendo!', 3); sfx('storm'); }
+    if (s.timer <= 0) { s.state = 'shrink'; s.fx = s.cx; s.fz = s.cz; s.fr = s.r; s.dur = STORM[s.phase].s * k; s.timer = s.dur; banner('La tempesta stregata si sta chiudendo!', 3); sfx('storm'); feed(s.phase >= STORM.length - 1 ? 'Ultimo cerchio: la tempesta non fa sconti.' : 'La tempesta si stringe. Correte, mortali!', 'ev'); }
   } else if (s.state === 'shrink') {
     s.timer -= dt; const t = clamp(1 - s.timer / s.dur, 0, 1);
     s.cx = lerp(s.fx, s.nx, t); s.cz = lerp(s.fz, s.nz, t); s.r = lerp(s.fr, s.nr, t);
@@ -2754,11 +2847,11 @@ function stormUpdate(dt) {
 function makeAirship() { const hb = makePumpkinAirship(); hb.group.userData.fx = hb; return hb.group; }
 function startMatch() {
   const map = MAPS[settings.map];
-  $('#loading').hidden = false; $('#loadTxt').textContent = map.name + ' · ' + map.size + ' m · ' + 'tu contro ' + map.bots + ' bot';
+  newTip(); $('#loading').hidden = false; $('#loadTxt').textContent = map.name + ' · ' + map.size + ' m · ' + 'tu contro ' + map.bots + ' bot';
   setTimeout(() => {
-    disposeWorld();
+    disposeWorld(); LATER.length = 0;
     buildWorld(settings.map, settings.diff);
-    newPlayer(); spawnBots(); stormInit();
+    newPlayer(); spawnBots(); stormInit(); BOT_SHOTS.length = 0;
     const a = R() * Math.PI * 2, R1 = W.S * 0.58, airY = W.map.mountain ? 175 : 140;
     const sx = -Math.cos(a) * R1, sz = -Math.sin(a) * R1, ex = Math.cos(a) * R1, ez = Math.sin(a) * R1;
     const dur = clamp(W.S / 45, 12, 30);
@@ -2779,14 +2872,46 @@ function drop() {
   P.phase = 'fall'; P.y = W.airship.y - 8; P.vy = 0; sfx('glide', 0.6);
   P.model.g.visible = true; banner('Punta verso un villaggio: lì ci sono più forzieri', 3);
 }
+// where the player will touch down if they keep steering the same way (fall 38 m/s until 48 m, then glide 7.5 m/s)
+function predictLanding() {
+  let x = P.x, z = P.z, y = P.y, fall = P.phase === 'fall';
+  for (let i = 0; i < 600; i++) {
+    const g = Math.max(W.getH(x, z), -1.1), hs = fall ? 19 : 13, st = 0.1;
+    if (fall && y - g < 48) fall = false;
+    x = clamp(x + P.wdx * hs * st, -W.half + 2, W.half - 2); z = clamp(z + P.wdz * hs * st, -W.half + 2, W.half - 2); y += (fall ? -38 : -7.5) * st;
+    if (y <= g) break;
+  }
+  return { x, z, sea: W.getH(x, z) < -0.7 };
+}
+function landMarker() {
+  if (!W.landMk) {
+    const g = new THREE.RingGeometry(1.5, 2.3, 40), g2 = new THREE.CircleGeometry(0.5, 20);
+    g.rotateX(-Math.PI / 2); g2.rotateX(-Math.PI / 2);
+    const mat = new THREE.MeshBasicMaterial({ color: 0xffb030, transparent: true, opacity: 0.9, depthWrite: false, fog: false, side: THREE.DoubleSide });
+    const grp = new THREE.Group(); grp.add(new THREE.Mesh(g, mat), new THREE.Mesh(g2, mat)); grp.renderOrder = 5; W.scene.add(grp);
+    W.disposables.push(g, g2, mat); W.landMk = { grp, mat };
+  }
+  return W.landMk;
+}
+function updateLanding() {
+  const air = P.alive && (P.phase === 'fall' || P.phase === 'glide');
+  if (!air) { if (W.landMk) W.landMk.grp.visible = false; P.seaWarn = 0; return; }
+  const L = predictLanding(), mk = landMarker(), gh = Math.max(W.getH(L.x, L.z), -0.6);
+  mk.grp.visible = true; mk.grp.position.set(L.x, gh + 0.35, L.z);
+  const d = Math.hypot(L.x - camera.position.x, L.z - camera.position.z, gh - camera.position.y); mk.grp.scale.setScalar(Math.max(1, d / 30));
+  mk.mat.color.setHex(L.sea ? 0x4fd0ff : 0xffb030);
+  const h = P.y - W.getH(P.x, P.z);
+  P.seaWarn = L.sea ? (h > 25 ? 1 : 2) : 0;
+}
 function landPlayer() {
+  camLand(0.3);
   P.phase = 'ground'; P.onGround = true; P.vy = 0; P.landT = matchT; P.model.glider.visible = false;
 }
 function checkWin() {
   if (P && P.alive && W.aliveBots <= 0 && state === 'play') {
     sfx('win'); banner('#1 Ultimo in piedi!', 5);
-    for (let i = 0; i < 6; i++) setTimeout(() => P && burst(P.x + (R() - 0.5) * 6, P.y + 4 + R() * 3, P.z + (R() - 0.5) * 6, pick([0xffc53d, 0x8b4dff, 0x41b9ff, 0xff4d5e]), 20, 5), i * 200);
-    setTimeout(() => endMatch(true, 1, null), 2200);
+    for (let i = 0; i < 6; i++) later(i * 0.2, () => P && burst(P.x + (R() - 0.5) * 6, P.y + 4 + R() * 3, P.z + (R() - 0.5) * 6, pick([0xffc53d, 0x8b4dff, 0x41b9ff, 0xff4d5e]), 20, 5));
+    later(2.2, () => endMatch(true, 1, null));
   }
 }
 function endMatch(win, place, killer) {
@@ -2797,6 +2922,7 @@ function endMatch(win, place, killer) {
   const total = W.map.bots + 1;
   $('#endTitle').textContent = win ? '#1 ULTIMO IN PIEDI!' : '#' + place + ' su ' + total;
   $('#endTitle').classList.toggle('lose', !win);
+  $('#endLine').textContent = fillTxt(pick(win ? END_WIN : killer && killer.isBot ? END_LOSE : END_LOSE.concat(END_STORM)), { n: place });
   $('#endWhy').textContent = win ? 'Hai vinto su ' + W.map.name + '. Nessuno è rimasto in piedi oltre a te.' : (killer && killer.isBot ? 'Eliminato da ' + killer.name : 'Eliminato dalla tempesta') + ' su ' + W.map.name + '.';
   const t = Math.round(matchT);
   $('#endStats').innerHTML = [['Posizione', '#' + place], ['Elim.', P.kills], ['Danni', Math.round(P.dmg)], ['Tempo', Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0')]]
@@ -2804,7 +2930,7 @@ function endMatch(win, place, killer) {
   $('#end').hidden = false;
 }
 function goHome() {
-  state = 'home'; exitLock(); document.body.classList.remove('playing');
+  state = 'home'; exitLock(); document.body.classList.remove('playing'); LATER.length = 0;
   $('#hud').hidden = true; $('#end').hidden = true; $('#pause').hidden = true; $('#home').hidden = false; hud.bigmap.style.display = 'none'; $('#rotate').style.display = 'none';
   disposeWorld();
 }
@@ -2813,8 +2939,10 @@ function resumeGame() { if (state !== 'paused') return; state = 'play'; $('#paus
 
 // ================= UPDATE =================
 let camDist = 4.6, camSh = 0.85, camUp = 0.35;
+function camLand(a) { if (P) { P.dipT = 0; P.dipA = a; } }
 function updatePlayer(dt) {
-  P.fireT -= dt; P.recoil = Math.max(0, P.recoil - dt * 0.35); P.swingT -= dt; if (P.hitmT > 0) P.hitmT -= dt;
+  P.fireT -= dt; P.recoil = Math.max(0, P.recoil - dt * 0.35); P.swingT -= dt; if (P.hitmT > 0) P.hitmT -= dt; if (P.killmT > 0) P.killmT -= dt;
+  if (P.kick > 0) { const r = P.kick * (1 - Math.exp(-9 * dt)); P.kick -= r; pitch = clamp(pitch - r, -1.25, 1.1); }   // recoil returns
   if (P.reloadT > 0) { P.reloadT -= dt; if (P.reloadT <= 0) finishReload(); }
   if (P.useT > 0) { P.useT -= dt; if (P.useT <= 0) finishUse(); }
   const fwdX = -Math.sin(yaw), fwdZ = -Math.cos(yaw), rgtX = Math.cos(yaw), rgtZ = -Math.sin(yaw);
@@ -2823,7 +2951,7 @@ function updatePlayer(dt) {
   mz += (K.KeyW || K.ArrowUp ? 1 : 0) - (K.KeyS || K.ArrowDown ? 1 : 0);
   mx += (K.KeyD || K.ArrowRight ? 1 : 0) - (K.KeyA || K.ArrowLeft ? 1 : 0);
   const len = Math.hypot(mx, mz); if (len > 1) { mx /= len; mz /= len; }
-  const wx = rgtX * mx + fwdX * mz, wz = rgtZ * mx + fwdZ * mz;
+  const wx = rgtX * mx + fwdX * mz, wz = rgtZ * mx + fwdZ * mz; P.wdx = wx; P.wdz = wz;
   const sprint = input.sprint || K.ShiftLeft || K.ShiftRight;
   if (!P.alive) { input.jumpQ = false; return; }
   if (P.phase === 'airship') {
@@ -2839,9 +2967,11 @@ function updatePlayer(dt) {
     P.moving = len > 0.1;
   } else {
     let speed = sprint && !P.aim ? 8.6 : 6.6; if (P.aim) speed = 3.9; if (P.useT > 0) speed *= 0.55; if (P.swim) speed *= 0.6;
-    const ox = P.x, oz = P.z;
+    const ox = P.x, oz = P.z, wasG = P.onGround, vy0 = P.vy;
     stepChar(P, wx * speed, wz * speed, dt);
-    P.speedNow = Math.hypot(P.x - ox, P.z - oz) / Math.max(dt, 1e-4);
+    if (!wasG && P.onGround && vy0 < -4) camLand(Math.min(0.3, -vy0 * 0.022));
+    P.sprinting = sprint && !P.aim && len > 0.1 && P.onGround;
+    P.speedNow = Math.hypot(P.x - ox, P.z - oz) / Math.max(dt, 1e-4); P.vx = (P.x - ox) / Math.max(dt, 1e-4); P.vz = (P.z - oz) / Math.max(dt, 1e-4);
     if (input.jumpQ && P.onGround && !P.swim) { P.vy = 8.6; P.onGround = false; }
     P.moving = len > 0.1;
     if ((input.fire || K.Mouse0) && P.fireT <= 0) playerFire();
@@ -2885,19 +3015,26 @@ function envUpdate(dt) {
   for (const c of W.chests) if (c.glow) c.glow.visible = !c.opened;
 }
 function updateCamera(dt) {
-  let dist = 4.6, sh = 0.85, up = 0.35, fov = 70;
+  let dist = 4.6, sh = 0.85, up = 0.35, fov = 70; const rm = settings.rm;
   const it = P.slots[P.cur];
   if (P.phase === 'airship') { dist = 34; sh = 0; up = 4; }
-  else if (P.phase === 'fall' || P.phase === 'glide') { dist = 8; sh = 0; up = 1.2; }
+  else if (P.phase === 'fall' || P.phase === 'glide') { dist = 8; sh = 0; up = 1.2; if (!rm) fov = P.phase === 'fall' ? 80 : 76; }
   else if (!P.alive) { dist = 9; sh = 0; up = 2; }
   else if (P.aim) { if (WEAPONS[it.kind].scope) { dist = 0.05; sh = 0; up = 0.1; fov = 17; } else { dist = 2.3; sh = 0.72; up = 0.3; fov = 54; } }
+  else if (P.sprinting && !rm) fov = 76;
   const k = 1 - Math.exp(-12 * dt);
   camDist = lerp(camDist, dist, k); camSh = lerp(camSh, sh, k); camUp = lerp(camUp, up, k);
   const cp = Math.cos(pitch), fx = -Math.sin(yaw) * cp, fy = Math.sin(pitch), fz = -Math.cos(yaw) * cp, rx = Math.cos(yaw), rz = -Math.sin(yaw);
   const hx = P.x, hy = P.y + 1.62, hz = P.z;
   let cx = hx - fx * camDist + rx * camSh, cy = hy - fy * camDist + camUp, cz = hz - fz * camDist + rz * camSh;
+  // bob (walk/run), landing dip, hit shake
+  const ground = P.alive && P.phase === 'ground' && P.onGround, spd = ground ? Math.min(9, P.speedNow || 0) : 0, scoped = P.aim && WEAPONS[it.kind].scope;
+  P.bobPh += dt * spd * 1.25; P.bobA = lerp(P.bobA, rm ? 0 : (spd / 8.6) * (P.sprinting ? 0.075 : 0.045) * (scoped ? 0.15 : 1), 1 - Math.exp(-8 * dt));
+  cy += Math.sin(P.bobPh * 2) * P.bobA; cx += rx * Math.cos(P.bobPh) * P.bobA * 0.6; cz += rz * Math.cos(P.bobPh) * P.bobA * 0.6;
+  if (P.dipT < 0.4) { P.dipT += dt; if (!rm) cy -= P.dipA * Math.sin(Math.PI * Math.min(1, P.dipT / 0.4)); }
+  let sx = 0, sy = 0; if (P.shake > 0) { P.shake = Math.max(0, P.shake - dt * 3.5); if (!rm) { const s = P.shake * P.shake * 0.14; sx = (R() - 0.5) * s; sy = (R() - 0.5) * s; } }
   const gmin = Math.max(W.getH(cx, cz), -0.6) + 0.45; if (cy < gmin) cy = gmin;
-  camera.position.set(cx, cy, cz); camera.lookAt(cx + fx, cy + fy, cz + fz);
+  camera.position.set(cx + rx * sx, cy + sy, cz + rz * sx); camera.lookAt(cx + fx + rx * sx * 1.6, cy + fy + sy * 1.6, cz + fz + rz * sx * 1.6);
   if (Math.abs(camera.fov - fov) > 0.1) { camera.fov = lerp(camera.fov, fov, 1 - Math.exp(-14 * dt)); camera.updateProjectionMatrix(); }
   P.model.g.visible = (P.alive || (P.deadT > 0 && P.deadT < 1.1)) && P.phase !== 'airship' && !(P.aim && WEAPONS[it.kind].scope && P.phase === 'ground');
   if (P.alive) { P.model.gun.visible = P.phase === 'ground'; setLOD(P.model, true); }
@@ -2919,14 +3056,21 @@ function drawFx(dt) {
     c.strokeStyle = `rgba(255,60,70,${clamp(d.t, 0, 1) * 0.9})`; c.lineWidth = 7 * fxD; c.lineCap = 'round';
     c.beginPath(); c.arc(cx, cy, rad, ang - 0.32, ang + 0.32); c.stroke();
   }
-  if (P.hitmT > 0) {
-    c.strokeStyle = P.hitHead ? '#ffd23a' : '#ffffff'; c.lineWidth = 2.5 * fxD; const a = 6 * fxD, b = 13 * fxD;
-    c.beginPath(); for (const [sx, sy] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) { c.moveTo(cx + sx * a, cy + sy * a); c.lineTo(cx + sx * b, cy + sy * b); } c.stroke();
+  if (P.hitmT > 0 || P.killmT > 0) {   // hit = white marker (same for head: no special visual); elimination = bigger orange marker with a ring
+    const kill = P.killmT > 0, pop = kill ? 1 + clamp((P.killmT - 0.3) / 0.1, 0, 1) * 0.35 : 1;
+    c.globalAlpha = kill ? clamp(P.killmT / 0.15, 0, 1) : 1;
+    c.strokeStyle = 'rgba(10,10,30,.55)'; c.lineWidth = (kill ? 6 : 5) * fxD; c.lineCap = 'round';
+    const a = (kill ? 8 : 7) * fxD * pop, b = (kill ? 21 : 16) * fxD * pop;
+    const path = () => { c.beginPath(); for (const [sx, sy] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) { c.moveTo(cx + sx * a, cy + sy * a); c.lineTo(cx + sx * b, cy + sy * b); } };
+    path(); c.stroke(); c.strokeStyle = kill ? '#ff8a1f' : '#ffffff'; c.lineWidth = (kill ? 3.5 : 3) * fxD; path(); c.stroke();
+    if (kill) { c.lineWidth = 2.5 * fxD; c.beginPath(); c.arc(cx, cy, b * 1.15, 0, Math.PI * 2); c.stroke(); }
+    c.globalAlpha = 1;
   }
 }
 let miniT = 0;
 function update(dt) {
-  matchT += dt;
+  if (W.slowT > 0) { W.slowT -= dt; dt *= 0.35; }          // brief "weight" after your elimination (off with riduci movimento)
+  matchT += dt; tickLater(dt);
   // look input
   const scope = P.aim && WEAPONS[P.slots[P.cur].kind].scope;
   const sens = P.aim ? (scope ? 0.28 : 0.55) : 1;
@@ -2940,9 +3084,10 @@ function update(dt) {
   }
   updatePlayer(dt); updateDeadPlayer(dt);
   for (const b of W.bots) updateBot(b, dt);
-  stormUpdate(dt);
+  stormUpdate(dt); updateBotShots(dt);
   updateLoot(dt);
   updateParticles(dt);
+  updateLanding();
   updateCamera(dt);
   envUpdate(dt);
   updateHUD(dt);
@@ -3165,7 +3310,28 @@ document.querySelectorAll('#diffSeg button').forEach(b => b.addEventListener('cl
 document.querySelectorAll('#gfxSeg button').forEach(b => b.addEventListener('click', () => { settings.gfx = b.dataset.g; store.set('gfx', settings.gfx); renderGfx(); applyGfx(); sfx('click'); }));
 $('#oPrev').addEventListener('click', () => { settings.outfit = (settings.outfit + LOOKS.length - 1) % LOOKS.length; store.set('outfit', settings.outfit); setHomeChar(); sfx('click'); });
 $('#oNext').addEventListener('click', () => { settings.outfit = (settings.outfit + 1) % LOOKS.length; store.set('outfit', settings.outfit); setHomeChar(); sfx('click'); });
-$('#playBtn').addEventListener('click', () => { initAudio(); sfx('click'); startMatch(); });
+// first-run tutorial (Anchor): 5 steps, only the line for this device
+const TUT = [
+  ['Lanciati', 'Premi <b>Spazio</b> per saltare giù dal dirigibile.', 'Tocca <b>SALTA</b> per saltare giù dal dirigibile.'],
+  ['Plana fino a terra', 'Guida con <b>W A S D</b> e guarda col mouse. Punta alla terra, non al mare.', 'Guida col <b>joystick a sinistra</b>. Punta alla terra, non al mare.'],
+  ['Trova armi', 'Apri i <b>forzieri dorati</b> nelle case. Per raccogliere passaci sopra; se hai lo zaino pieno premi <b>F</b>.', 'Apri i <b>forzieri dorati</b> nelle case. Per raccogliere passaci sopra; se hai lo zaino pieno tocca <b>Raccogli</b>.'],
+  ['Spara e costruisci', 'Clic sinistro spara, destro mira. <b>Q</b> muro, <b>E</b> rampa (' + BUILD_COST.wall.wood + ' legno).', '<b>FUOCO</b> spara, <b>MIRA</b> zooma. <b>MURO</b> e <b>RAMPA</b> costano ' + BUILD_COST.wall.wood + ' legno.'],
+  ['Resta nel cerchio', "La tempesta stregata si stringe. Guarda la minimappa e vinci restando l'ultimo in piedi.", "La tempesta stregata si stringe. Tocca la minimappa e vinci restando l'ultimo in piedi."]];
+let tutI = 0;
+function showTut() { const s = TUT[tutI]; $('#tutN').textContent = (tutI + 1) + ' di 5'; $('#tutTitle').textContent = s[0]; $('#tutTxt').innerHTML = isTouch ? s[2] : s[1]; $('#tutNext').textContent = tutI === TUT.length - 1 ? 'Gioca!' : 'Avanti'; $('#tut').hidden = false; }
+function endTut() { store.set('tut', true); $('#tut').hidden = true; startMatch(); }
+$('#tutNext').addEventListener('click', () => { sfx('click'); if (tutI < TUT.length - 1) { tutI++; showTut(); } else endTut(); });
+$('#tutSkip').addEventListener('click', () => { sfx('click'); endTut(); });
+$('#playBtn').addEventListener('click', () => { initAudio(); sfx('click'); if (!store.get('tut', false)) { tutI = 0; showTut(); } else startMatch(); });
+const TIPS = ['Lanciati sopra un villaggio: ci sono più forzieri.', 'Guarda sotto di te mentre plani: il mare non perdona.', 'Senza legno non si costruisce: prima abbatti qualche albero.',
+  'Un muro al volo (' + BUILD_COST.wall.wood + ' legno) ti salva più di un colpo in più.', 'Le zucche danno caramelle: +15 salute.', "Il colore dell'arma dice la rarità: più rara, più forte.",
+  'Ricarica dietro un riparo, non allo scoperto.', 'La tempesta fa sempre più male: entra nel cerchio prima che si chiuda.', 'Usa la rampa per salire in alto e vedere chi arriva.',
+  'Bende e scudo: usali quando sei al sicuro, servono un attimo.'];
+function newTip() { $('#loadTip').textContent = 'Consiglio: ' + pick(TIPS); }
+newTip();
+function renderRm() { document.querySelectorAll('#rmSeg button').forEach(b => b.setAttribute('aria-pressed', String((b.dataset.r === '1') === !!settings.rm))); }
+document.querySelectorAll('#rmSeg button').forEach(b => b.addEventListener('click', () => { settings.rm = b.dataset.r === '1'; store.set('rm', settings.rm); renderRm(); sfx('click'); }));
+renderRm();
 $('#helpBtn').addEventListener('click', () => { $('#help').hidden = false; });
 $('#wipeBtn').addEventListener('click', () => {
   if (!confirm('Cancellare statistiche e impostazioni salvate in questo browser?')) return;
@@ -3194,8 +3360,8 @@ function frame(now) {
   if (state === 'home' || !W) {
     homeT += dt;
     if (homeChar) {
-      homeChar.g.rotation.y = Math.sin(homeT * 0.35) * 0.55 + 0.25;
-      animHuman(homeChar, { spd: 0, ph: 0, pitch: -0.32 + Math.sin(homeT * 0.9) * 0.03, hold: 'rifle', t: homeT, headYaw: Math.sin(homeT * 0.5) * 0.25 });
+      homeChar.g.rotation.y = Math.PI - 0.5 + Math.sin(homeT * 0.35) * 0.12; // faces the camera, three-quarters
+      animHuman(homeChar, { spd: 0, ph: 0, pitch: -0.32 + Math.sin(homeT * 0.9) * 0.03, hold: 'rifle', t: homeT, headYaw: 0.3 + Math.sin(homeT * 0.5) * 0.15 });
     }
     for (const c of homeClouds) { c.position.x += c.userData.v * dt; if (c.position.x > 110) c.position.x = -110; }
     if (homeGrass) homeGrass.update(0, 0, V.set(0, 0, 0), dt);
@@ -3210,7 +3376,7 @@ function frame(now) {
     return;
   }
   if (state === 'play') update(dt);
-  else if (state === 'over') { matchT += dt; for (const b of W.bots) updateBot(b, dt); updateDeadPlayer(dt); updateParticles(dt); yaw += dt * 0.15; updateCamera(dt); envUpdate(dt); }
+  else if (state === 'over') { matchT += dt; tickLater(dt); for (const b of W.bots) updateBot(b, dt); updateDeadPlayer(dt); updateParticles(dt); yaw += dt * 0.15; updateCamera(dt); envUpdate(dt); }
   renderer.toneMappingExposure = W.look.exposure;
   renderer.render(W.scene, camera);
   if (state === 'play' || state === 'over') drawFx(dt); else fxc.clearRect(0, 0, fxW, fxH);

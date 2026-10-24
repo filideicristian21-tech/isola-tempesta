@@ -228,6 +228,14 @@ body:not(.touch) .tonly{display:none!important}
   #prompt{bottom:calc(env(safe-area-inset-bottom,0px) + 116px)}
 }
 @media (prefers-reduced-motion:reduce){#bDrop,#rotate .ph{animation:none}}
+.seg.seg2{grid-template-columns:repeat(2,1fr)}
+body.touch .donly{display:none!important}
+#seaWarn{position:absolute;left:50%;top:68%;transform:translateX(-50%);font-family:var(--display);font-size:clamp(16px,2.4vw,22px);color:#fff;background:rgba(20,90,160,.82);padding:5px 14px;border-radius:10px;text-shadow:0 2px 6px rgba(0,0,0,.5);display:none;white-space:nowrap}
+#feed div.ev{background:rgba(110,60,170,.78)}
+#loadTip{margin:14px auto 0;max-width:min(520px,86vw);font-weight:800;color:#f3e6c8;font-size:15px}
+#end .endline{margin:-4px 0 12px;font-style:italic}
+.tuttxt{font-size:16px;font-weight:700;line-height:1.45;margin:4px 0 6px}
+.tuttxt b{color:var(--gold)}
 </style>
 </head>
 <body>
@@ -273,6 +281,12 @@ body:not(.touch) .tonly{display:none!important}
       </div>
     </section>
     <section class="panel">
+      <h2>Comfort</h2>
+      <div class="seg seg2" id="rmSeg">
+        <button data-r="0">Movimento pieno</button><button data-r="1">Riduci movimento</button>
+      </div>
+    </section>
+    <section class="panel">
       <div class="stats">
         <div><b id="stWins">0</b><small>Vittorie</small></div>
         <div><b id="stKills">0</b><small>Elim.</small></div>
@@ -313,6 +327,7 @@ body:not(.touch) .tonly{display:none!important}
   <div id="loc"><small>STAI ENTRANDO IN</small><b id="locName"></b></div>
   <div id="cross"><i></i><i></i><i></i><i></i></div>
   <div id="alt"></div>
+  <div id="seaWarn" role="status"></div>
   <div id="useBar"><span id="useTxt"></span><div><i id="useFill"></i></div></div>
   <div id="prompt"><button id="pickBtn" tabindex="-1"></button></div>
   <div id="dropWrap"><button id="bDrop" tabindex="-1">LANCIATI!</button></div>
@@ -346,26 +361,38 @@ body:not(.touch) .tonly{display:none!important}
 <div class="modal" id="help" hidden>
   <div class="box">
     <h3>Come si gioca</h3>
-    <p class="note" style="margin-bottom:10px">Salti giù dal dirigibile, atterri dove vuoi, apri i forzieri dorati nelle case e trovi armi, bende e scudi. La tempesta stregata verde si stringe: resta dentro il cerchio. Abbatti alberi col piccone per avere legno e costruire muri e rampe. Spacca le zucche (piccone o sparo) per trovare caramelle: +15 salute.</p>
+    <p class="note" style="margin-bottom:10px">Salti giù dal dirigibile e atterri dove vuoi. Nelle case apri i forzieri dorati: ci trovi armi, bende e scudi. Col piccone abbatti alberi per avere legno e costruisci muri e rampe. Spacca le zucche per le caramelle (+15 salute). La tempesta stregata si stringe: resta nel cerchio. Vince l'ultimo in piedi.</p>
     <div class="keys tonly">
-      <kbd>Lato sinistro</kbd><span>Trascina per muoverti (fino in fondo = corsa)</span>
+      <kbd>Lato sinistro</kbd><span>Trascina per muoverti (fino in fondo per correre)</span>
       <kbd>Lato destro</kbd><span>Trascina per guardare e mirare</span>
-      <kbd>FUOCO</kbd><span>Spara (puoi trascinare il dito per mirare)</span>
-      <kbd>MIRA</kbd><span>Zoom; con il cecchino apre il mirino</span>
+      <kbd>FUOCO · MIRA</kbd><span>Spara · zoom (con il cecchino apre il mirino)</span>
+      <kbd>RICARICA · SALTA</kbd><span>Ricarica · salta e lanciati dal dirigibile</span>
+      <kbd>Raccogli</kbd><span>Passaci sopra; con lo zaino pieno tocca Raccogli</span>
       <kbd>MURO / RAMPA</kbd><span>Costruisci davanti a te (10 legno)</span>
+      <kbd>Bende / scudo</kbd><span>Cura e protezione</span>
       <kbd>Minimappa</kbd><span>Tocca per la mappa grande</span>
+      <kbd>Telefono</kbd><span>Gira il telefono in orizzontale.</span>
     </div>
-    <div class="keys" id="deskKeys">
-      <kbd>W A S D</kbd><span>Muoviti · Shift per correre</span>
-      <kbd>Mouse</kbd><span>Guarda · Clic sinistro spara · Destro mira</span>
-      <kbd>Spazio</kbd><span>Salta · lanciati dal dirigibile</span>
-      <kbd>1 – 5 / rotella</kbd><span>Cambia arma · R ricarica</span>
-      <kbd>Q / E</kbd><span>Costruisci muro / rampa</span>
-      <kbd>F</kbd><span>Raccogli arma a terra</span>
-      <kbd>H / J</kbd><span>Usa bende / scudo</span>
-      <kbd>M · Esc</kbd><span>Mappa · Pausa</span>
+    <div class="keys donly" id="deskKeys">
+      <kbd>W A S D</kbd><span>Muoviti · Shift: corri</span>
+      <kbd>Mouse</kbd><span>Guarda · Clic sinistro: spara · Clic destro: mira</span>
+      <kbd>Spazio</kbd><span>Salta e lanciati dal dirigibile</span>
+      <kbd>1–5 / rotella</kbd><span>Cambia arma · R: ricarica</span>
+      <kbd>Q / E</kbd><span>Muro / rampa (10 legno)</span>
+      <kbd>F</kbd><span>Raccogli (con lo zaino pieno)</span>
+      <kbd>H / J</kbd><span>Bende / scudo</span>
+      <kbd>M · Esc</kbd><span>Mappa · pausa</span>
     </div>
     <div class="btnrow"><button class="btn gold" id="helpClose">Ho capito</button></div>
+  </div>
+</div>
+
+<div class="modal" id="tut" hidden>
+  <div class="box">
+    <p class="note" id="tutN">1 di 5</p>
+    <h3 id="tutTitle">Lanciati</h3>
+    <p class="tuttxt" id="tutTxt"></p>
+    <div class="btnrow"><button class="btn" id="tutSkip">Salta tutorial</button><button class="btn gold" id="tutNext">Avanti</button></div>
   </div>
 </div>
 
@@ -381,12 +408,13 @@ body:not(.touch) .tonly{display:none!important}
   <div class="box">
     <p class="big" id="endTitle">#1 ULTIMO IN PIEDI!</p>
     <p class="why" id="endWhy"></p>
+    <p class="note endline" id="endLine"></p>
     <div id="endStats"></div>
     <div class="btnrow"><button class="btn gold" id="againBtn">Gioca ancora</button><button class="btn" id="homeBtn">Torna alla home</button></div>
   </div>
 </div>
 
-<div id="loading"><div><b>Risveglio i mostri…</b><span id="loadTxt">Accendo le zucche e nascondo i forzieri</span></div></div>
+<div id="loading"><div><b>Risveglio i mostri…</b><span id="loadTxt">Accendo le zucche e nascondo i forzieri</span><p id="loadTip"></p></div></div>
 <div id="rotate"><div><div class="ph"></div><b>Gira il telefono</b><p class="note">In orizzontale hai più spazio per i comandi.</p><div class="btnrow"><button class="btn" id="rotOk">Gioca così</button></div></div></div>
 
 <script type="importmap">{"imports":{"three":"./lib/three/three.module.min.js","three/addons/":"./lib/three/addons/"}}</script>
