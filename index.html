@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e0a1c">
+<title>Isola Tempesta</title>
+<meta name="description" content="Isola Tempesta: battle royale in 3D nel browser, tu contro fino a 69 bot. Progetto indipendente.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preload" href="fonts/oswald-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+/* Fonts served locally (SIL OFL 1.1, see fonts/OFL-*.txt) */
+@font-face{font-family:'Oswald';font-style:normal;font-weight:200 700;font-display:swap;src:url(fonts/oswald-latin-wght-normal.woff2) format('woff2')}
+@font-face{font-family:'Inter';font-style:normal;font-weight:100 900;font-display:swap;src:url(fonts/inter-latin-wght-normal.woff2) format('woff2')}
+@font-face{font-family:'Creepster';font-style:normal;font-weight:400;font-display:swap;src:url(fonts/creepster-latin-400-normal.woff2) format('woff2')}
+/* Full-bleed 3D canvas; home = floating glass panels around a live island; HUD pinned to safe-area corners */
+:root{
+  --ink:#0e0a1c;
+  --panel:rgba(14,16,24,.72);
+  --panel-2:rgba(34,38,52,.72);
+  --line:rgba(237,239,244,.14);
+  --storm:#8b4dff;
+  --storm-2:#c49bff;
+  --gold:#F07A1A;
+  --gold-deep:#D9590F;
+  --sel:#FFB347;
+  --slime:#9dff7a;
+  --spooky:'Creepster',system-ui,sans-serif;
+  --text:#EDEFF4;
+  --muted:#A9B0C0;
+  --hp:#52e06f;
+  --shield:#41b9ff;
+  --danger:#ff4d5e;
+  --display:'Oswald','Arial Narrow',system-ui,sans-serif;
+  --body:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  color-scheme:dark;
+}
+[hidden]{display:none!important}
+html,body{height:100%;margin:0;overflow:hidden;background:var(--ink);color:var(--text);font-family:var(--body);
+  touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+button{font-family:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+#c,#fx{position:fixed;inset:0;width:100%;height:100%;display:block}
+#fx{pointer-events:none;z-index:3}
+#touch{position:fixed;inset:0;z-index:4;display:none}
+body.playing #touch{display:block}
+
+/* ---------- HOME ---------- */
+#home{position:fixed;inset:0;z-index:10;overflow-y:auto;overflow-x:hidden;touch-action:pan-y;
+  padding-top:calc(env(safe-area-inset-top,0px) + 14px);padding-bottom:calc(env(safe-area-inset-bottom,0px) + 16px);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.75fr) minmax(0,.85fr);gap:16px;align-items:start;box-sizing:border-box}
+.col{display:flex;flex-direction:column;gap:12px;min-width:0}
+.logo{font-family:var(--display);font-weight:600;font-size:clamp(34px,6.2vw,66px);line-height:.88;margin:0;letter-spacing:.01em;
+  color:var(--gold);text-shadow:0 3px 0 var(--gold-deep),0 6px 0 #5a2bb0,0 10px 18px rgba(20,8,60,.55);text-wrap:balance}
+.logo span{color:#fff}
+.event{display:inline-block;margin:8px 0 0;font-family:var(--spooky);font-weight:400;font-size:clamp(24px,3.6vw,38px);letter-spacing:.06em;color:var(--slime);transform:rotate(-3deg);text-shadow:0 0 14px rgba(140,255,110,.55),0 3px 0 #1a0b2e}
+.outfit .on small{display:block;font-family:var(--body);font-weight:900;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--slime);min-height:12px}
+.sub{margin:4px 0 0;font-weight:800;font-size:13px;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.6);max-width:36ch}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  box-shadow:0 10px 30px rgba(6,8,30,.35)}
+.panel h2{margin:0 0 8px;font-family:var(--display);font-weight:600;font-size:17px;letter-spacing:.04em;text-transform:uppercase;color:var(--storm-2)}
+.maps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.mapc{display:flex;gap:9px;align-items:center;text-align:left;background:var(--panel-2);border:2px solid transparent;border-radius:12px;padding:7px;min-width:0}
+.mapc canvas{width:52px;height:52px;border-radius:9px;flex:none;image-rendering:pixelated;background:#1f6fb0}
+.mapc b{display:block;font-family:var(--display);font-weight:600;font-size:15px;line-height:1.05;letter-spacing:.02em}
+.mapc small{display:block;font-size:11.5px;font-weight:700;color:var(--muted);margin-top:2px}
+.mapc .sz{display:inline-block;margin-top:4px;font-size:10px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;padding:2px 6px;border-radius:6px;background:rgba(139,77,255,.35);color:#fff}
+.mapc[aria-pressed="true"]{border-color:var(--sel);background:rgba(255,179,71,.14)}
+.outfit{display:flex;align-items:center;gap:8px}
+.outfit button{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--panel-2);font-size:18px;font-weight:900}
+.outfit .on{flex:1;text-align:center;font-family:var(--display);font-size:20px;letter-spacing:.03em}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.seg button{padding:9px 4px;border-radius:10px;border:1px solid var(--line);background:var(--panel-2);font-weight:900;font-size:13px}
+.seg button[aria-pressed="true"]{background:var(--sel);border-color:var(--sel);color:#1a0c00}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;text-align:center}
+.stats div{background:var(--panel-2);border-radius:10px;padding:7px 4px}
+.stats b{display:block;font-family:var(--display);font-size:21px;font-weight:400;font-variant-numeric:tabular-nums}
+.stats small{font-size:10.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.play{font-family:var(--display);font-weight:600;font-size:34px;letter-spacing:.06em;padding:12px 10px 10px;border-radius:16px;border:0;
+  color:#1a0c00;background:linear-gradient(180deg,var(--gold),var(--gold-deep));box-shadow:0 5px 0 #7a2808,0 12px 26px rgba(255,120,20,.4);
+  transition:transform .08s}
+.play:active{transform:translateY(4px);box-shadow:0 1px 0 #7a2808}
+.ghost{padding:9px;border-radius:12px;border:1px solid var(--line);background:rgba(22,13,36,.6);font-weight:800;font-size:13px}
+.legal{display:flex;flex-direction:column;gap:6px}
+.legal a{color:var(--sel)}
+.age{color:var(--text);font-weight:600}
+.note{font-size:11.5px;color:var(--muted);font-weight:700;margin:0;line-height:1.35}
+@media (max-height:520px){
+  #playBtn{order:-1;font-size:28px;padding:9px 10px 7px}
+  #home .panel{padding:8px 10px}
+  #home .panel h2{font-size:14px;margin-bottom:5px}
+  .seg button{padding:7px 4px}
+  .outfit button{width:34px;height:34px}
+  .stats b{font-size:17px}
+}
+@media (max-width:760px){
+  #home{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  #home .mid{display:none}
+}
+@media (max-width:520px){
+  #home{grid-template-columns:minmax(0,1fr)}
+}
+
+/* ---------- MODALS ---------- */
+.modal{position:fixed;inset:0;z-index:30;display:grid;place-items:center;background:rgba(8,10,30,.72);
+  padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));
+  overflow-y:auto;touch-action:pan-y}
+.modal .box{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px;width:min(560px,100%);box-sizing:border-box}
+.modal h3{font-family:var(--display);font-weight:600;font-size:26px;margin:0 0 10px;color:var(--gold);letter-spacing:.02em}
+.keys{display:grid;grid-template-columns:auto 1fr;gap:5px 12px;font-size:13px;font-weight:700}
+.keys kbd{font-family:var(--body);font-weight:900;font-size:11.5px;background:var(--panel-2);border:1px solid var(--line);border-radius:6px;padding:2px 7px;white-space:nowrap}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.btnrow button{flex:1;min-width:130px}
+.btn{padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--panel-2);font-weight:900;font-size:15px}
+.btn.gold{background:linear-gradient(180deg,#ffc27a,var(--gold-deep));color:#2a1000;border:0;font-family:var(--display);font-weight:600;font-size:20px;letter-spacing:.04em}
+#loading{position:fixed;inset:0;z-index:40;display:grid;place-items:center;background:radial-gradient(circle at 50% 40%,#5a2a5f,#0e0a1c 70%)}
+#loading div{text-align:center}
+#loading b{font-family:var(--spooky);font-weight:400;font-size:34px;letter-spacing:.04em;color:var(--gold);display:block}
+#loading span{font-weight:800;color:var(--muted);font-size:14px}
+
+/* ---------- HUD ---------- */
+#hud{position:fixed;inset:0;z-index:5;pointer-events:none}
+#hud button{pointer-events:auto;touch-action:none}
+#stormTint{position:absolute;inset:0;background:radial-gradient(circle,rgba(60,220,120,.14),rgba(20,120,70,.55));opacity:0;transition:opacity .4s}
+#vignette{position:absolute;inset:0;box-shadow:inset 0 0 120px 30px rgba(255,30,50,.75);opacity:0}
+#scope{position:absolute;inset:0;display:none;background:radial-gradient(circle at 50% 50%,transparent 0 31vmin,rgba(0,0,0,.92) 31.3vmin)}
+#scope::before,#scope::after{content:"";position:absolute;background:rgba(0,0,0,.85)}
+#scope::before{left:50%;top:calc(50% - 31vmin);width:2px;height:62vmin;transform:translateX(-1px)}
+#scope::after{top:50%;left:calc(50% - 31vmin);height:2px;width:62vmin;transform:translateY(-1px)}
+#tl{position:absolute;top:calc(env(safe-area-inset-top,0px) + 8px);left:calc(env(safe-area-inset-left,0px) + 10px);display:flex;flex-direction:column;gap:5px;width:116px}
+#mini{width:116px;height:116px;border-radius:12px;border:2px solid rgba(255,255,255,.75);background:#1f6fb0;pointer-events:auto;box-shadow:0 4px 14px rgba(0,0,0,.35)}
+.chip{background:rgba(12,18,48,.72);border-radius:8px;padding:3px 7px;font-weight:900;font-size:11px;line-height:1.25;font-variant-numeric:tabular-nums}
+#stormTxt{color:#b8ffcf}
+#counts{display:flex;gap:5px}
+#counts .chip{flex:1;text-align:center}
+#counts b{font-family:var(--display);font-weight:600;font-size:15px;display:block}
+#tr{position:absolute;top:calc(env(safe-area-inset-top,0px) + 8px);right:calc(env(safe-area-inset-right,0px) + 10px);display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+#menuBtn{width:40px;height:34px;border-radius:10px;border:1px solid rgba(255,255,255,.5);background:rgba(12,18,48,.6);font-weight:900;font-size:13px;letter-spacing:.1em}
+#feed{display:flex;flex-direction:column;gap:3px;align-items:flex-end;max-width:46vw}
+#feed div{background:rgba(12,18,48,.66);padding:3px 8px;border-radius:7px;font-size:11.5px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;transition:opacity .5s}
+#feed div.me{background:rgba(255,138,31,.88);color:#2a1000}
+#feed div.dead{background:rgba(255,77,94,.85)}
+#banner{position:absolute;top:calc(env(safe-area-inset-top,0px) + 10px);left:50%;transform:translateX(-50%);text-align:center;font-family:var(--display);font-size:clamp(16px,2.6vw,24px);
+  letter-spacing:.03em;color:#fff;text-shadow:0 2px 0 #4a1fa0,0 3px 10px rgba(0,0,0,.6);opacity:0;transition:opacity .35s;white-space:nowrap;max-width:56vw}
+#loc{position:absolute;top:24%;left:50%;transform:translateX(-50%);text-align:center;opacity:0;transition:opacity .5s}
+#loc small{display:block;font-weight:900;font-size:11px;letter-spacing:.2em;color:var(--gold)}
+#loc b{font-family:var(--display);font-weight:600;font-size:clamp(22px,4vw,38px);text-shadow:0 3px 0 rgba(0,0,0,.35)}
+#cross{position:absolute;left:50%;top:50%;width:0;height:0;--s:10px}
+#cross i{position:absolute;background:#fff;box-shadow:0 0 2px rgba(0,0,0,.9)}
+#cross i:nth-child(1){width:2px;height:7px;left:-1px;top:calc(-1 * var(--s) - 7px)}
+#cross i:nth-child(2){width:2px;height:7px;left:-1px;top:var(--s)}
+#cross i:nth-child(3){height:2px;width:7px;top:-1px;left:calc(-1 * var(--s) - 7px)}
+#cross i:nth-child(4){height:2px;width:7px;top:-1px;left:var(--s)}
+#cross.dot i{display:none}
+#cross.dot::after{content:"";position:absolute;width:4px;height:4px;left:-2px;top:-2px;border-radius:50%;background:#fff;box-shadow:0 0 2px #000}
+#alt{position:absolute;left:50%;top:62%;transform:translateX(-50%);font-family:var(--display);font-size:22px;text-shadow:0 2px 6px rgba(0,0,0,.6);display:none}
+#useBar{position:absolute;left:50%;top:60%;transform:translateX(-50%);width:180px;text-align:center;display:none}
+#useBar span{font-weight:900;font-size:12px;text-shadow:0 1px 3px #000}
+#useBar div{height:7px;border-radius:4px;background:rgba(0,0,0,.5);overflow:hidden;margin-top:3px}
+#useBar i{display:block;height:100%;width:0;background:var(--hp)}
+#prompt{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 132px);transform:translateX(-50%);display:none}
+#pickBtn{padding:8px 14px;border-radius:12px;border:2px solid #fff;background:rgba(12,18,48,.82);font-weight:900;font-size:13px;white-space:nowrap}
+#bottom{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 6px);display:flex;flex-direction:column;align-items:center;gap:5px}
+#barsRow{display:flex;gap:6px;align-items:center}
+#bars{display:flex;flex-direction:column;gap:3px;width:200px}
+.bar{position:relative;height:13px;border-radius:5px;background:rgba(0,0,0,.5);overflow:hidden;border:1px solid rgba(255,255,255,.25)}
+.bar i{position:absolute;left:0;top:0;bottom:0;width:0;transition:width .15s}
+.bar.hp i{background:linear-gradient(180deg,#8ff7a0,var(--hp))}
+.bar.sh i{background:linear-gradient(180deg,#9fe0ff,var(--shield))}
+.bar span{position:relative;display:block;text-align:right;padding-right:5px;font-size:10px;font-weight:900;line-height:13px;text-shadow:0 1px 2px #000;font-variant-numeric:tabular-nums}
+.cons{min-width:46px;height:30px;border-radius:9px;border:1px solid rgba(255,255,255,.45);background:rgba(12,18,48,.66);font-weight:900;font-size:11px;padding:0 6px;line-height:1.05}
+.cons[disabled]{opacity:.38}
+#slotRow{display:flex;gap:6px;align-items:flex-end}
+#slots{display:flex;gap:4px}
+.slot{width:46px;height:40px;border-radius:9px;border:2px solid rgba(255,255,255,.28);background:rgba(12,18,48,.6);display:grid;place-items:center;padding:0;position:relative}
+.slot svg{width:36px;height:18px}
+.slot.cur{border-color:#fff;transform:translateY(-4px);box-shadow:0 4px 10px rgba(0,0,0,.4)}
+.slot em{position:absolute;left:3px;top:1px;font-style:normal;font-size:9px;font-weight:900;opacity:.75}
+#ammoBox,#matBox{min-width:58px;text-align:center;background:rgba(12,18,48,.66);border-radius:9px;padding:3px 6px;font-variant-numeric:tabular-nums}
+#ammoBox b,#matBox b{display:block;font-family:var(--display);font-weight:600;font-size:18px;line-height:1.05}
+#ammoBox span,#matBox span{font-size:10px;font-weight:900;color:var(--muted)}
+.tb{position:absolute;border-radius:50%;border:2px solid rgba(255,255,255,.6);background:rgba(12,18,48,.42);color:#fff;font-weight:900;font-size:10.5px;letter-spacing:.04em;
+  display:grid;place-items:center;padding:0;line-height:1.05;text-align:center}
+.tb.on,.tb:active{background:rgba(255,197,61,.6)}
+#bFire{width:86px;height:86px;right:calc(env(safe-area-inset-right,0px) + 22px);bottom:calc(env(safe-area-inset-bottom,0px) + 74px);background:rgba(255,77,94,.42);font-size:12.5px}
+#bFire.on{background:rgba(255,77,94,.8)}
+#bJump{width:58px;height:58px;right:calc(env(safe-area-inset-right,0px) + 22px);bottom:calc(env(safe-area-inset-bottom,0px) + 10px)}
+#bAim{width:54px;height:54px;right:calc(env(safe-area-inset-right,0px) + 118px);bottom:calc(env(safe-area-inset-bottom,0px) + 120px)}
+#bReload{width:48px;height:48px;right:calc(env(safe-area-inset-right,0px) + 28px);bottom:calc(env(safe-area-inset-bottom,0px) + 172px)}
+#bWall{width:50px;height:50px;right:calc(env(safe-area-inset-right,0px) + 96px);bottom:calc(env(safe-area-inset-bottom,0px) + 14px);border-radius:12px}
+#bRamp{width:50px;height:50px;right:calc(env(safe-area-inset-right,0px) + 154px);bottom:calc(env(safe-area-inset-bottom,0px) + 14px);border-radius:12px}
+#bFireL{width:56px;height:56px;left:calc(env(safe-area-inset-left,0px) + 22px);top:calc(env(safe-area-inset-top,0px) + 205px);background:rgba(255,77,94,.35)}
+#bFireL.on{background:rgba(255,77,94,.8)}
+#joyBase{position:absolute;width:120px;height:120px;margin:-60px 0 0 -60px;border-radius:50%;border:2px solid rgba(255,255,255,.35);background:rgba(12,18,48,.22);
+  left:calc(env(safe-area-inset-left,0px) + 100px);top:calc(100% - env(safe-area-inset-bottom,0px) - 90px);opacity:.55}
+#joyKnob{position:absolute;left:50%;top:50%;width:48px;height:48px;margin:-24px 0 0 -24px;border-radius:50%;background:rgba(255,255,255,.65)}
+#joyBase.act{opacity:1}
+#dropWrap{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 120px);transform:translateX(-50%);display:none;text-align:center}
+#bDrop{font-family:var(--display);font-weight:600;font-size:26px;letter-spacing:.05em;padding:12px 26px 10px;border-radius:16px;border:0;color:#2a1500;
+  background:linear-gradient(180deg,#ffe07a,var(--gold-deep));box-shadow:0 5px 0 #a35a00,0 0 0 4px rgba(255,255,255,.35);animation:pulse 1s infinite alternate}
+@keyframes pulse{to{transform:scale(1.06)}}
+#keysHint{position:absolute;left:calc(env(safe-area-inset-left,0px) + 10px);bottom:calc(env(safe-area-inset-bottom,0px) + 8px);font-size:11px;font-weight:800;color:rgba(255,255,255,.75);
+  text-shadow:0 1px 2px #000;line-height:1.5;max-width:260px}
+body.touch #keysHint{display:none}
+body:not(.touch) .tonly{display:none!important}
+#bigmap{position:fixed;inset:0;z-index:8;display:none;place-items:center;background:rgba(8,10,30,.6);pointer-events:auto}
+#bigmap canvas{width:min(88vmin,620px);height:min(88vmin,620px);border-radius:16px;border:3px solid #fff;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+#rotate{position:fixed;inset:0;z-index:35;display:none;place-items:center;background:rgba(8,10,30,.9);text-align:center;padding:24px}
+#rotate b{font-family:var(--display);font-weight:600;font-size:26px;color:var(--gold);display:block;margin:12px 0 6px}
+#rotate .ph{width:60px;height:96px;border:4px solid #fff;border-radius:12px;margin:0 auto;animation:rot 1.6s infinite}
+@keyframes rot{50%,100%{transform:rotate(-90deg)}}
+#end .big{font-family:var(--display);font-weight:600;font-size:clamp(34px,7vw,60px);line-height:1;margin:0;color:var(--gold);text-shadow:0 3px 0 var(--gold-deep),0 6px 0 #5a2bb0}
+#end .big.lose{color:#fff;text-shadow:0 3px 0 #a22a3a,0 6px 0 #3a1460}
+#end .why{font-weight:800;color:var(--muted);margin:8px 0 12px}
+#endStats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center}
+#endStats div{background:var(--panel-2);border-radius:10px;padding:8px 4px}
+#endStats b{display:block;font-family:var(--display);font-weight:600;font-size:24px;font-variant-numeric:tabular-nums}
+#endStats small{font-size:10px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+@media (max-height:420px){
+  #bars{width:170px}
+  .slot{width:42px;height:36px}
+  #mini{width:96px;height:96px}#tl{width:96px}
+  #bFire{width:76px;height:76px;bottom:calc(env(safe-area-inset-bottom,0px) + 70px)}
+  #bReload{bottom:calc(env(safe-area-inset-bottom,0px) + 152px)}
+  #bAim{bottom:calc(env(safe-area-inset-bottom,0px) + 104px);right:calc(env(safe-area-inset-right,0px) + 106px)}
+  #prompt{bottom:calc(env(safe-area-inset-bottom,0px) + 116px)}
+}
+@media (prefers-reduced-motion:reduce){#bDrop,#rotate .ph{animation:none}}
+</style>
+</head>
+<body>
+
+
+<canvas id="c"></canvas>
+<canvas id="fx"></canvas>
+<div id="touch"></div>
+
+<!-- HOME -->
+<div id="home">
+  <div class="col">
+    <div>
+      <h1 class="logo">ISOLA<br><span>TEMPESTA</span></h1>
+      <span class="event">Halloween</span>
+      <p class="sub">Notte di Halloween: 8 skin mostruose, zucche da spaccare per le caramelle e cimiteri pieni di nebbia. Resta l'ultimo in piedi.</p>
+    </div>
+    <section class="panel">
+      <h2>Scegli la mappa</h2>
+      <div class="maps" id="mapList"></div>
+    </section>
+  </div>
+  <div class="col mid" aria-hidden="true"></div>
+  <div class="col">
+    <section class="panel">
+      <h2>Personaggio</h2>
+      <div class="outfit">
+        <button id="oPrev" aria-label="Personaggio precedente">‹</button>
+        <div class="on"><span id="oName">Ranger</span><small id="oTag"></small></div>
+        <button id="oNext" aria-label="Personaggio successivo">›</button>
+      </div>
+    </section>
+    <section class="panel">
+      <h2>Difficoltà bot</h2>
+      <div class="seg" id="diffSeg">
+        <button data-d="facile">Facile</button><button data-d="normale">Normale</button><button data-d="difficile">Difficile</button>
+      </div>
+    </section>
+    <section class="panel">
+      <h2>Grafica</h2>
+      <div class="seg" id="gfxSeg">
+        <button data-g="bassa">Bassa</button><button data-g="media">Media</button><button data-g="alta">Alta</button>
+      </div>
+    </section>
+    <section class="panel">
+      <div class="stats">
+        <div><b id="stWins">0</b><small>Vittorie</small></div>
+        <div><b id="stKills">0</b><small>Elim.</small></div>
+        <div><b id="stGames">0</b><small>Partite</small></div>
+      </div>
+    </section>
+    <button class="play" id="playBtn">GIOCA</button>
+    <p class="note age">Contiene violenza fantasy con armi e mostri in stile cartoon. Consigliato da 12 anni in su.</p>
+    <button class="ghost" id="helpBtn">Come si gioca</button>
+    <p class="note" id="homeNote"></p>
+    <section class="panel legal">
+      <p class="note">Isola Tempesta è un progetto indipendente, non affiliato a nessun editore di videogiochi. Tu contro fino a 69 bot, nessun giocatore online.</p>
+      <p class="note">Il gioco salva solo statistiche e impostazioni nel tuo browser (localStorage). Non raccogliamo dati. Il sito è ospitato su GitHub Pages: GitHub può registrare dati tecnici delle visite, come l'indirizzo IP, secondo la sua <a href="https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">privacy policy</a>.</p>
+      <p class="note"><a href="CREDITS.md" target="_blank" rel="noopener">Crediti e licenze</a></p>
+      <button class="ghost" id="wipeBtn">Cancella i dati salvati</button>
+    </section>
+  </div>
+</div>
+
+<!-- HUD -->
+<div id="hud" hidden>
+  <div id="stormTint"></div>
+  <div id="vignette"></div>
+  <div id="scope"></div>
+  <div id="tl">
+    <canvas id="mini" width="232" height="232" aria-label="Minimappa, tocca per ingrandire"></canvas>
+    <div class="chip" id="stormTxt">Tempesta</div>
+    <div id="counts">
+      <div class="chip"><b id="aliveN">0</b>vivi</div>
+      <div class="chip"><b id="killN">0</b>elim.</div>
+    </div>
+  </div>
+  <div id="tr">
+    <button id="menuBtn" aria-label="Pausa" tabindex="-1">II</button>
+    <div id="feed"></div>
+  </div>
+  <div id="banner"></div>
+  <div id="loc"><small>STAI ENTRANDO IN</small><b id="locName"></b></div>
+  <div id="cross"><i></i><i></i><i></i><i></i></div>
+  <div id="alt"></div>
+  <div id="useBar"><span id="useTxt"></span><div><i id="useFill"></i></div></div>
+  <div id="prompt"><button id="pickBtn" tabindex="-1"></button></div>
+  <div id="dropWrap"><button id="bDrop" tabindex="-1">LANCIATI!</button></div>
+  <div id="bottom">
+    <div id="barsRow">
+      <button class="cons" id="bHeal" tabindex="-1">Bende<br><span id="healN">0</span></button>
+      <div id="bars">
+        <div class="bar sh"><i id="shFill"></i><span id="shN">0</span></div>
+        <div class="bar hp"><i id="hpFill"></i><span id="hpN">100</span></div>
+      </div>
+      <button class="cons" id="bShield" tabindex="-1">Scudo<br><span id="shieldN">0</span></button>
+    </div>
+    <div id="slotRow">
+      <div id="matBox"><b id="woodN">0</b><span>LEGNO</span></div>
+      <div id="slots"></div>
+      <div id="ammoBox"><b id="magN">–</b><span id="resN">MUNIZIONI</span></div>
+    </div>
+  </div>
+  <div id="joyBase" class="tonly"><div id="joyKnob"></div></div>
+  <button class="tb tonly" id="bFireL" tabindex="-1">FUOCO</button>
+  <button class="tb tonly" id="bFire" tabindex="-1">FUOCO</button>
+  <button class="tb tonly" id="bJump" tabindex="-1">SALTA</button>
+  <button class="tb tonly" id="bAim" tabindex="-1">MIRA</button>
+  <button class="tb tonly" id="bReload" tabindex="-1">RICA&shy;RICA</button>
+  <button class="tb tonly" id="bWall" tabindex="-1">MURO</button>
+  <button class="tb tonly" id="bRamp" tabindex="-1">RAMPA</button>
+  <div id="keysHint">WASD muovi · Mouse mira · Clic spara · Tasto destro mira<br>Spazio salta · Shift corri · R ricarica · 1-5 armi<br>Q muro · E rampa · F raccogli · H bende · J scudo · M mappa</div>
+</div>
+<div id="bigmap"><canvas id="bigC" width="760" height="760" aria-label="Mappa completa, tocca per chiudere"></canvas></div>
+
+<div class="modal" id="help" hidden>
+  <div class="box">
+    <h3>Come si gioca</h3>
+    <p class="note" style="margin-bottom:10px">Salti giù dal dirigibile, atterri dove vuoi, apri i forzieri dorati nelle case e trovi armi, bende e scudi. La tempesta stregata verde si stringe: resta dentro il cerchio. Abbatti alberi col piccone per avere legno e costruire muri e rampe. Spacca le zucche (piccone o sparo) per trovare caramelle: +15 salute.</p>
+    <div class="keys tonly">
+      <kbd>Lato sinistro</kbd><span>Trascina per muoverti (fino in fondo = corsa)</span>
+      <kbd>Lato destro</kbd><span>Trascina per guardare e mirare</span>
+      <kbd>FUOCO</kbd><span>Spara (puoi trascinare il dito per mirare)</span>
+      <kbd>MIRA</kbd><span>Zoom; con il cecchino apre il mirino</span>
+      <kbd>MURO / RAMPA</kbd><span>Costruisci davanti a te (10 legno)</span>
+      <kbd>Minimappa</kbd><span>Tocca per la mappa grande</span>
+    </div>
+    <div class="keys" id="deskKeys">
+      <kbd>W A S D</kbd><span>Muoviti · Shift per correre</span>
+      <kbd>Mouse</kbd><span>Guarda · Clic sinistro spara · Destro mira</span>
+      <kbd>Spazio</kbd><span>Salta · lanciati dal dirigibile</span>
+      <kbd>1 – 5 / rotella</kbd><span>Cambia arma · R ricarica</span>
+      <kbd>Q / E</kbd><span>Costruisci muro / rampa</span>
+      <kbd>F</kbd><span>Raccogli arma a terra</span>
+      <kbd>H / J</kbd><span>Usa bende / scudo</span>
+      <kbd>M · Esc</kbd><span>Mappa · Pausa</span>
+    </div>
+    <div class="btnrow"><button class="btn gold" id="helpClose">Ho capito</button></div>
+  </div>
+</div>
+
+<div class="modal" id="pause" hidden>
+  <div class="box">
+    <h3>Pausa</h3>
+    <p class="note">La partita è ferma. Riprendi quando vuoi.</p>
+    <div class="btnrow"><button class="btn gold" id="resumeBtn">Riprendi</button><button class="btn" id="quitBtn">Abbandona partita</button></div>
+  </div>
+</div>
+
+<div class="modal" id="end" hidden>
+  <div class="box">
+    <p class="big" id="endTitle">#1 ULTIMO IN PIEDI!</p>
+    <p class="why" id="endWhy"></p>
+    <div id="endStats"></div>
+    <div class="btnrow"><button class="btn gold" id="againBtn">Gioca ancora</button><button class="btn" id="homeBtn">Torna alla home</button></div>
+  </div>
+</div>
+
+<div id="loading"><div><b>Risveglio i mostri…</b><span id="loadTxt">Accendo le zucche e nascondo i forzieri</span></div></div>
+<div id="rotate"><div><div class="ph"></div><b>Gira il telefono</b><p class="note">In orizzontale hai più spazio per i comandi.</p><div class="btnrow"><button class="btn" id="rotOk">Gioca così</button></div></div></div>
+
+<script type="importmap">{"imports":{"three":"./lib/three/three.module.min.js","three/addons/":"./lib/three/addons/"}}</script>
+<script type="module" src="js/game.js"></script>
+
+
+</body>
+</html>

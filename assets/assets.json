@@ -1,0 +1,60 @@
+{
+ "hdri": {
+  "sunset": {
+   "bg": "assets/hdri/kloppenheim_06_puresky_bg.webp",
+   "bgScale": 0.2529285674397426,
+   "lightDir": [
+    0.7557054630227001,
+    0.08121144680959244,
+    0.6498568719839308
+   ],
+   "median": 0.56777109375,
+   "name": "kloppenheim_06_puresky"
+  },
+  "dusk": {
+   "bg": "assets/hdri/qwantani_dusk_2_puresky_bg.webp",
+   "bgScale": 0.2025447435373504,
+   "lightDir": [
+    0.7715662367012346,
+    0.1875621285825296,
+    0.6078700439273883
+   ],
+   "median": 0.7923328125,
+   "name": "qwantani_dusk_2_puresky"
+  },
+  "storm": {
+   "bg": "assets/hdri/kloppenheim_07_puresky_bg.webp",
+   "bgScale": 0.9873876653681491,
+   "lightDir": [
+    0.6373247735318017,
+    0.6188529879609763,
+    0.4591711144381899
+   ],
+   "median": 0.297569921875,
+   "name": "kloppenheim_07_puresky"
+  },
+  "moon": {
+   "bg": "assets/hdri/kloppenheim_02_puresky_bg.webp",
+   "bgScale": 0.8370687240815062,
+   "lightDir": [
+    0.7777676879927575,
+    0.29175226323498926,
+    0.5567387541851764
+   ],
+   "median": 0.1268349609375,
+   "name": "kloppenheim_02_puresky"
+  }
+ },
+ "tex": {
+  "grass": "Grass004",
+  "leaves": "ScatteredLeaves009",
+  "sand": "Ground080",
+  "rock": "Rock030",
+  "snow": "Snow006",
+  "dirt": "Ground054",
+  "plaster": "Plaster001",
+  "roof": "RoofingTiles006",
+  "wood": "WoodSiding008",
+  "stone": "Bricks105"
+ }
+}
