@@ -19,4 +19,4 @@ Il sito è ospitato su GitHub Pages: GitHub può registrare dati tecnici delle v
 Tutti gli asset sono CC0. Il codice di terze parti è MIT e i font sono OFL 1.1. L'elenco completo è in [CREDITS.md](CREDITS.md).
 
 ## Licenza
-Licenza: codice del gioco, tutti i diritti riservati © 2026 filideicristian21-tech. Asset di terze parti con le rispettive licenze (CC0, MIT, OFL): vedi `LICENSE`, `CREDITS.md` e la cartella `licenses/`.
+Codice del gioco: tutti i diritti riservati © 2026 filideicristian21-tech. Gli asset e le librerie di terze parti mantengono le loro licenze: vedi `CREDITS.md` e la cartella `licenses/`.

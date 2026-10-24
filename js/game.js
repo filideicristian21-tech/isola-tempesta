@@ -52,12 +52,12 @@ const WEAPONS = {
 };
 const KINDS = ['pistola', 'mitra', 'assalto', 'pompa', 'cecchino'];
 const KIND_W = [26, 22, 25, 18, 9];
-const RAR = [
-  { name: 'Comune', css: '#b9c0cc', hex: 0x9ea4ad, m: 1.0 },
-  { name: 'Non comune', css: '#5fd35a', hex: 0x3f9a3c, m: 1.08 },
-  { name: 'Raro', css: '#3fa2ff', hex: 0x2a6fc0, m: 1.16 },
-  { name: 'Epico', css: '#b45cff', hex: 0x7b3cc0, m: 1.24 },
-  { name: 'Leggendario', css: '#ffb52e', hex: 0xd99a1e, m: 1.33 },
+const RAR = [ // Halloween rarity tiers (own palette)
+  { name: 'Cenere', css: '#d8c9b0', hex: 0xb0a088, m: 1.0 },
+  { name: 'Brina', css: '#7fe0f0', hex: 0x4fb8c8, m: 1.08 },
+  { name: 'Ambra', css: '#ffc94a', hex: 0xd9a52a, m: 1.16 },
+  { name: 'Zucca', css: '#ff6a2a', hex: 0xd9481a, m: 1.24 },
+  { name: 'Spettrale', css: '#ff4fb8', hex: 0xd0308f, m: 1.33 }
 ];
 function rollRarity(rng = R, bonus = 0) { const r = rng() * 100; let t = r < 40 ? 0 : r < 70 ? 1 : r < 88 ? 2 : r < 97 ? 3 : 4; if (bonus && rng() < 0.45) t = Math.min(4, t + 1); return t; }
 const SKIN_TONES = [0xf2d0b6, 0xe6b894, 0xd29e76, 0xb27a52, 0x8a5a3c, 0x5d3b27];
@@ -151,7 +151,7 @@ function sfx(name, vol = 1) {
       case 'storm': tone(110, 'sawtooth', 0.9, 0.12, 0, 70); break;
       case 'heal': tone(500, 'sine', 0.2, 0.2, 0, 900); break;
       case 'click': tone(700, 'triangle', 0.05, 0.12); break;
-      case 'bus': [196, 233, 277, 330].forEach((f, i) => tone(f, 'sawtooth', 1.4, 0.06, i * 0.05)); tone(98, 'triangle', 1.8, 0.15); break;
+      case 'airship': [196, 233, 277, 330].forEach((f, i) => tone(f, 'sawtooth', 1.4, 0.06, i * 0.05)); tone(98, 'triangle', 1.8, 0.15); break;
     }
   } catch (e) { }
 }
@@ -1314,7 +1314,7 @@ function buildWorld(mapIndex, diff) {
   const sky = L.dome, sun = L.key;
 
   W = { look, L, fogFar0: GQ.fog * 1.25, flashT: 6, flash: 0, map, mapIndex, diff, S, half, segs, N, cell, H, getH, scene, sky, sun, grid: new Map(), trees: [], loot: [], chests: [], bots: [], built: [], builtKeys: new Set(),
-    villages: [], houses: [], disposables: [], particles: [], tracers: [], nums: [], ind: [], stormTick: 0, aliveBots: 0, bus: null, minimapImg: null, grass: null, haloQ: [], pumpkins: [], cemeteries: [], fx: null, glow: null };
+    villages: [], houses: [], disposables: [], particles: [], tracers: [], nums: [], ind: [], stormTick: 0, aliveBots: 0, airship: null, minimapImg: null, grass: null, haloQ: [], pumpkins: [], cemeteries: [], fx: null, glow: null };
   const MB = new MatBatch();
   const foot = [];
   const overl = (x0, z0, x1, z1) => foot.some(f => !(x1 < f.x0 || x0 > f.x1 || z1 < f.z0 || z0 > f.z1));
@@ -2014,76 +2014,51 @@ function updateHalloweenFx(dt) {
     const g = groundAt(ch.x, ch.z, ch.y + 0.3), hgt = ch.y - g;
     bl.set(i, ch.x, g + 0.04, ch.z, clamp(1 - hgt / 12, 0, 1) * 1.15);
   };
-  W.bots.forEach((b, i) => put(i, b, !b.inBus && (b.alive || b.deadT > 0)));
-  if (P) put(W.bots.length, P, (P.alive || P.deadT > 0) && P.phase !== 'bus');
+  W.bots.forEach((b, i) => put(i, b, !b.onAirship && (b.alive || b.deadT > 0)));
+  if (P) put(W.bots.length, P, (P.alive || P.deadT > 0) && P.phase !== 'airship');
   bl.commit();
 }
 
-// ---- the haunted airship: a black school-style bus hanging from a carved-pumpkin balloon
-function makeHalloweenBus() {
+// ---- the haunted airship: a wicker gondola hanging from a carved-pumpkin balloon, with a rear propeller
+function makePumpkinAirship() {
   const g = new THREE.Group(), MB = new MatBatch(), disp = W ? W.disposables : [];
-  const paint = 0x2b1a3a, paintD = 0x1c1026, stripe = 0xff7a1a, chrome = 0x8a8f99;
+  const wicker = 0x8a5a32, wickerD = 0x5e3a1e, iron = 0x3a3436, brass = 0xb08a4a;
   const box = (k, x0, y0, z0, x1, y1, z1, c) => MB.box(k, x0, y0, z0, x1, y1, z1, c);
-  // body
-  box('metal', -1.5, -1.2, -5.0, 1.5, 0.22, 5.5, paint);
-  box('metal', -1.35, -1.2, -6.6, 1.35, -0.05, -5.0, paint);
-  box('metal', -1.2, -0.05, -6.3, 1.2, 0.08, -5.0, paintD);
-  box('metal', -1.55, 1.5, -5.1, 1.55, 1.78, 5.6, paintD);
-  box('metal', -1.4, 1.78, -4.8, 1.4, 1.9, 5.3, paintD);
-  // window band: pillars + glowing windows
-  const win = [0xffa040, 0xff8a24, 0xffb860];
-  for (const s of [-1, 1]) {
-    const xo = s * 1.5;
-    box('metal', Math.min(xo, xo - s * 0.12), 0.22, -5.0, Math.max(xo, xo - s * 0.12), 0.45, 5.5, paint);
-    box('metal', Math.min(xo, xo - s * 0.12), 1.32, -5.0, Math.max(xo, xo - s * 0.12), 1.5, 5.5, paint);
-    for (let i = 0; i < 8; i++) {
-      const z0 = -4.6 + i * 1.25, z1 = z0 + 1.0;
-      box('metal', Math.min(xo, xo - s * 0.12), 0.45, z0 - 0.25, Math.max(xo, xo - s * 0.12), 1.32, z0, paint);
-      box('lit', Math.min(xo + s * 0.01, xo - s * 0.1), 0.45, z0, Math.max(xo + s * 0.01, xo - s * 0.1), 1.32, z1, win[i % 3]);
-    }
-    box('metal', Math.min(xo + s * 0.02, xo + s * 0.04), 0.1, -5.05, Math.max(xo + s * 0.02, xo + s * 0.04), 0.32, 5.55, stripe);
-    box('metal', Math.min(xo + s * 0.02, xo + s * 0.04), -0.95, -5.05, Math.max(xo + s * 0.02, xo + s * 0.04), -0.85, 5.55, stripe);
-    box('metal', Math.min(s * 1.35, s * 1.37), -0.55, -6.6, Math.max(s * 1.35, s * 1.37), -0.45, -5.0, stripe);
-  }
-  box('metal', -1.5, 0.22, 5.38, 1.5, 1.5, 5.5, paint);
-  box('lit', -1.1, 0.5, 5.5, 1.1, 1.3, 5.52, 0xff9a3a);
-  box('glass', -1.38, 0.3, -5.04, 1.38, 1.42, -4.98, 0x16222a);
-  box('metal', -0.06, 0.3, -5.07, 0.06, 1.42, -5.0, paint);
-  // front: grille with fangs, glowing green eyes (headlights), bumpers
-  box('dark', -0.9, -1.0, -6.64, 0.9, -0.2, -6.58, 0x0c0a0e);
-  for (let i = -3; i <= 3; i++) box('metal', i * 0.24 - 0.03, -0.95, -6.66, i * 0.24 + 0.03, -0.25, -6.6, chrome);
-  for (const s of [-1, 1]) { box('lit', s * 1.0 - 0.22, -0.72, -6.64, s * 1.0 + 0.22, -0.42, -6.59, 0x9dff6a); box('metal', s * 1.0 - 0.27, -0.77, -6.62, s * 1.0 + 0.27, -0.37, -6.58, chrome); }
-  box('dark', -1.45, -1.45, -6.85, 1.45, -1.15, -6.6, 0x111014);
-  box('dark', -1.55, -1.45, 5.5, 1.55, -1.15, 5.75, 0x111014);
-  for (const x of [-1.1, -0.65, -0.2, 0.25, 0.7, 1.1]) MB.geo('plaster', new THREE.ConeGeometry(0.1, 0.32, 6), mtx(x, -1.6, -6.74, 1, 1, 1, Math.PI), 0xf2ead8);
-  for (const s of [-1, 1]) box('lit', s * 1.25 - 0.15, -0.6, 5.52, s * 1.25 + 0.15, -0.3, 5.56, 0xff2a2a);
-  // door, mirrors, wheels
-  box('dark', 1.5, -1.1, -4.7, 1.53, 1.3, -3.7, 0x140c1a);
-  for (const s of [-1, 1]) { box('metal', s * 1.55, 0.6, -5.6, s * 1.55 + s * 0.06, 0.8, -5.45, chrome); box('dark', s * 1.62 - 0.05, 0.45, -5.62, s * 1.62 + 0.05, 0.95, -5.42, 0x111111); }
-  const wg = new THREE.CylinderGeometry(0.62, 0.62, 0.42, 18), rg = new THREE.CylinderGeometry(0.32, 0.32, 0.44, 12);
-  for (const z of [-3.9, 3.7]) for (const s of [-1, 1]) { MB.geo('dark', wg, mtx(s * 1.35, -1.35, z, 1, 1, 1, 0, 0, Math.PI / 2), 0x121012); MB.geo('metal', rg, mtx(s * 1.36, -1.35, z, 1, 1, 1, 0, 0, Math.PI / 2), 0x7a3aff); }
+  // gondola: round woven basket with a padded rim and a darker base
+  MB.geo('wood', new THREE.CylinderGeometry(2.5, 2.0, 1.9, 14, 1, true), mtx(0, 0.05, 0), wicker);
+  MB.geo('wood', new THREE.CylinderGeometry(2.0, 2.0, 0.12, 14), mtx(0, -0.86, 0), wickerD);
+  MB.geo('dark', new THREE.TorusGeometry(2.5, 0.16, 6, 20), mtx(0, 1.0, 0, 1, 1, 1, Math.PI / 2), wickerD);
+  MB.geo('dark', new THREE.TorusGeometry(2.25, 0.09, 5, 20), mtx(0, -0.35, 0, 1, 1, 1, Math.PI / 2), wickerD);
+  for (const [y, r] of [[0.45, 2.38], [-0.75, 2.05]]) MB.geo('dark', new THREE.TorusGeometry(r, 0.07, 5, 20), mtx(0, y, 0, 1, 1, 1, Math.PI / 2), wickerD);
+  // rear propeller on an iron boom (it is an airship, not a balloon)
+  box('metal', -0.12, 0.55, 2.2, 0.12, 0.8, 4.4, iron);
+  MB.geo('metal', new THREE.CylinderGeometry(0.28, 0.36, 0.7, 10), mtx(0, 0.68, 4.6, 1, 1, 1, Math.PI / 2), brass);
+  const prop = new THREE.Group(); prop.position.set(0, 0.68, 5.0);
   // ropes up to the balloon
   const up = new THREE.Vector3(0, 1, 0), q = new THREE.Quaternion(), dv = new THREE.Vector3(), cg = new THREE.CylinderGeometry(0.05, 0.05, 1, 5);
   const rope = (a, b) => { dv.set(b[0] - a[0], b[1] - a[1], b[2] - a[2]); const L = dv.length(); dv.multiplyScalar(1 / L); q.setFromUnitVectors(up, dv); MB.geo('dark', cg, new THREE.Matrix4().compose(new THREE.Vector3((a[0] + b[0]) / 2, (a[1] + b[1]) / 2, (a[2] + b[2]) / 2), q, new THREE.Vector3(1, L, 1)), 0x2a2018); };
-  for (const sx of [-1, 1]) for (const sz of [-1, 1]) rope([sx * 1.3, 1.9, sz * 4.4], [sx * 1.9, 7.6, sz * 1.9]);
+  for (let i = 0; i < 6; i++) { const a = i / 6 * Math.PI * 2 + 0.26; rope([Math.cos(a) * 2.4, 1.05, Math.sin(a) * 2.4], [Math.cos(a) * 1.6, 7.6, Math.sin(a) * 1.6]); }
   box('dark', -1.0, 7.0, -1.0, 1.0, 7.35, 1.0, 0x1a1418);
-  for (const s of [-1, 1]) { box('metal', s * 0.08 - 0.04, 1.9, 4.6, s * 0.08 + 0.04, 3.4, 4.68, chrome); }
-  box('dark', 0.12, 2.7, 4.6, 1.3, 3.35, 4.64, 0x4a1a6a);
+  // lanterns hanging from the rim
+  for (let i = 0; i < 4; i++) { const a = i / 4 * Math.PI * 2 + Math.PI / 4, x = Math.cos(a) * 2.75, z = Math.sin(a) * 2.75; box('metal', x - 0.04, 0.55, z - 0.04, x + 0.04, 1.0, z + 0.04, iron); box('lit', x - 0.16, 0.2, z - 0.16, x + 0.16, 0.55, z + 0.16, 0xffa040); }
   MB.build(g, disp);
+  const bladeG = new THREE.BoxGeometry(0.22, 2.6, 0.06), bladeM = new THREE.MeshStandardMaterial({ color: linC(0x2a1e16), roughness: 0.8 });
+  disp.push(bladeG, bladeM);
+  for (const r of [0, Math.PI / 2]) { const bl = new THREE.Mesh(bladeG, bladeM); bl.rotation.z = r; prop.add(bl); }
+  g.add(prop);
   // carved pumpkin balloon, with a face on both sides
   const pg = pumpkinGeos(), BS = 15;
   const balloon = new THREE.Group(); balloon.position.y = 7.4; g.add(balloon);
   const bb = new THREE.Mesh(pg.body, VEG_MAT); bb.scale.setScalar(BS); bb.castShadow = true; balloon.add(bb);
   for (const ry of [0, Math.PI]) { const f = new THREE.Mesh(pg.face, FACE_MAT); f.scale.setScalar(BS); f.rotation.y = ry; balloon.add(f); }
-  // pumpkins riding on the roof
-  for (const [x, z, s, ry] of [[-0.6, -3.2, 0.9, 0.3], [0.7, 2.2, 0.75, -2.6], [-0.5, 3.6, 0.6, 2.9]]) {
-    const pb = new THREE.Mesh(pg.body, VEG_MAT); pb.position.set(x, 1.88, z); pb.scale.setScalar(s); pb.rotation.y = ry; g.add(pb);
+  // small pumpkins riding in the gondola
+  for (const [x, z, s, ry] of [[-0.9, -0.6, 0.9, 0.3], [0.9, 0.5, 0.75, -2.6], [-0.2, 1.2, 0.6, 2.9]]) {
+    const pb = new THREE.Mesh(pg.body, VEG_MAT); pb.position.set(x, 0.95, z); pb.scale.setScalar(s); pb.rotation.y = ry; g.add(pb);
     const pf = new THREE.Mesh(pg.face, FACE_MAT); pf.position.copy(pb.position); pf.scale.setScalar(s); pf.rotation.y = ry; g.add(pf);
   }
-  // glows (local to the bus, so they travel with it)
+  // glows (local to the airship, so they travel with it)
   const gl = new GlowPoints(48, GLOW_ADD);
-  for (const s of [-1, 1]) for (let i = 0; i < 8; i++) gl.add(s * 1.9, 0.9, -4.1 + i * 1.25, 0xff9a3a, 2.2, 1, 0.4);
-  for (const s of [-1, 1]) { gl.add(s * 1.0, -0.57, -7.1, 0x9dff6a, 3.4, 0, 0.8); gl.add(s * 1.25, -0.45, 5.9, 0xff3030, 1.6, 0, 0.6); }
+  for (let i = 0; i < 4; i++) { const a = i / 4 * Math.PI * 2 + Math.PI / 4; gl.add(Math.cos(a) * 2.75, 0.38, Math.sin(a) * 2.75, 0xff9a3a, 2.6, 1, 0.5); }
   for (const zz of [-1, 1]) { gl.add(-0.13 * BS, 7.4 + 0.42 * BS, zz * 0.45 * BS, 0xff8a24, 6, 1, 0.8); gl.add(0.13 * BS, 7.4 + 0.42 * BS, zz * 0.45 * BS, 0xff8a24, 6, 1, 0.8); gl.add(0, 7.4 + 0.22 * BS, zz * 0.46 * BS, 0xff7a1a, 7, 1, 0.75); }
   const burner = gl.add(0, 7.7, 0, 0x7dff9a, 3.5, 1, 1);
   gl.commit(); g.add(gl.points);
@@ -2095,7 +2070,7 @@ function makeHalloweenBus() {
     update(dt) {
       t += dt;
       center.x = g.position.x; center.y = g.position.y - 2; center.z = g.position.z;
-      balloon.rotation.z = Math.sin(t * 0.7) * 0.03; balloon.position.y = 7.4 + Math.sin(t * 1.1) * 0.15;
+      prop.rotation.z += dt * 9; balloon.rotation.z = Math.sin(t * 0.7) * 0.03; balloon.position.y = 7.4 + Math.sin(t * 1.1) * 0.15;
       g.rotation.z = Math.sin(t * 0.9) * 0.025;
       gl.setSize(burner, 3 + Math.sin(t * 13) * 0.6 + Math.sin(t * 7.3) * 0.5); gl.commit();
       bats.update(t);
@@ -2321,7 +2296,7 @@ function updateHUD(dt) {
   hud.vign.style.opacity = clamp(P.hurtT * 1.6, 0, 0.9); P.hurtT = Math.max(0, P.hurtT - dt);
   const out = P.alive && Math.hypot(P.x - s.cx, P.z - s.cz) > s.r;
   hud.tint.style.opacity = out && P.phase === 'ground' ? 1 : 0;
-  hud.drop.style.display = P.phase === 'bus' ? 'block' : 'none';
+  hud.drop.style.display = P.phase === 'airship' ? 'block' : 'none';
   hud.alt.style.display = P.phase === 'fall' || P.phase === 'glide' ? 'block' : 'none';
   if (P.phase === 'fall' || P.phase === 'glide') setTxt(hud.alt, 'alt', Math.max(0, Math.round(P.y - W.getH(P.x, P.z))) + ' m');
   if (P.useT > 0) { hud.useBar.style.display = 'block'; setTxt(hud.useTxt, 'use', P.useKind === 'bende' ? 'Bende…' : 'Scudo…'); hud.useFill.style.width = (100 * (1 - P.useT / P.useMax)) + '%'; }
@@ -2341,8 +2316,8 @@ function drawMap(ctx, size, big) {
   ctx.fillStyle = 'rgba(40,190,110,.4)'; ctx.fill('evenodd'); ctx.restore();
   ctx.lineWidth = big ? 3 : 2; ctx.strokeStyle = 'rgba(150,255,190,.95)'; ctx.beginPath(); ctx.arc(toX(s.cx), toY(s.cz), Math.max(0.5, s.r * k), 0, Math.PI * 2); ctx.stroke();
   if (s.state !== 'done') { ctx.strokeStyle = '#fff'; ctx.setLineDash([5, 4]); ctx.beginPath(); ctx.arc(toX(s.nx), toY(s.nz), Math.max(0.5, s.nr * k), 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]); }
-  if (W.bus && W.bus.active) {
-    const b = W.bus; ctx.strokeStyle = 'rgba(255,215,90,.9)'; ctx.lineWidth = big ? 3 : 2; ctx.setLineDash([3, 5]); ctx.beginPath(); ctx.moveTo(toX(b.sx), toY(b.sz)); ctx.lineTo(toX(b.ex), toY(b.ez)); ctx.stroke(); ctx.setLineDash([]);
+  if (W.airship && W.airship.active) {
+    const b = W.airship; ctx.strokeStyle = 'rgba(255,215,90,.9)'; ctx.lineWidth = big ? 3 : 2; ctx.setLineDash([3, 5]); ctx.beginPath(); ctx.moveTo(toX(b.sx), toY(b.sz)); ctx.lineTo(toX(b.ex), toY(b.ez)); ctx.stroke(); ctx.setLineDash([]);
   }
   const px = toX(P.x), py = toY(P.z), a = -yaw;
   ctx.save(); ctx.translate(px, py); ctx.rotate(a);
@@ -2355,7 +2330,7 @@ function drawMap(ctx, size, big) {
 function newPlayer() {
   const m = makeHuman(outfitLook(settings.outfit));
   P = { isBot: false, name: 'Tu', alive: true, x: 0, y: 150, z: 0, vy: 0, onGround: false, blocked: false, swim: false, hp: 100, shield: 0,
-    slots: [{ kind: 'piccone', rar: 0, mag: 0 }, null, null, null, null], cur: 0, ammo: 36, wood: 40, bende: 0, scudi: 0, phase: 'bus',
+    slots: [{ kind: 'piccone', rar: 0, mag: 0 }, null, null, null, null], cur: 0, ammo: 36, wood: 40, bende: 0, scudi: 0, phase: 'airship',
     fireT: 0, reloadT: 0, useT: 0, useMax: 1, useKind: null, aim: false, kills: 0, dmg: 0, landT: 0, moving: false, swingT: 0, recoil: 0, hurtT: 0,
     model: m, animT: 0, speedNow: 0, deathT: 0, startT: 0 };
   setGun(m, 'piccone', 0); W.scene.add(m.g);
@@ -2586,7 +2561,7 @@ function spawnBots() {
     W.bots.push({ isBot: true, name: 'Bot ' + names[i % names.length] + (i >= names.length ? ' ' + i : ''), x, z, y: g + 40 + R() * 80, vy: 0, yaw: R() * 6.28,
       hp: 100, shield: pick([0, 0, 25, 50]), w: { kind, rar }, mag: WEAPONS[kind].mag, reloadT: 0, fireT: 0, think: R() * 0.5, target: null, los: false,
       react: 0, alive: true, landing: true, onGround: false, blocked: false, model: m, animT: R() * 6, mvx: 0, mvz: 0, wx: null, wz: null, strafe: R() < 0.5 ? 1 : -1,
-      stuckT: 0, deadT: 0, lostT: 0, kills: 0, flee: false, swim: false, passive: R() < 0.35, inBus: true, dropAt: 0.06 + Math.pow(R(), 0.8) * 0.9, gx: x, gz: z, fallPh: true });
+      stuckT: 0, deadT: 0, lostT: 0, kills: 0, flee: false, swim: false, passive: R() < 0.35, onAirship: true, dropAt: 0.06 + Math.pow(R(), 0.8) * 0.9, gx: x, gz: z, fallPh: true });
     m.g.visible = false;
   }
   W.aliveBots = W.bots.length;
@@ -2617,7 +2592,7 @@ function botThink(b) {
   if (canFight) {
     let best = null, bd = D.detect * D.detect;
     const bb = b.passive ? 0 : bd * 0.5;
-    for (const o of W.bots) { if (o === b || !o.alive || o.landing || o.inBus) continue; const dx = o.x - b.x, dz = o.z - b.z, d2 = dx * dx + dz * dz; if (d2 < bb && d2 < bd) { bd = d2; best = o; } }
+    for (const o of W.bots) { if (o === b || !o.alive || o.landing || o.onAirship) continue; const dx = o.x - b.x, dz = o.z - b.z, d2 = dx * dx + dz * dz; if (d2 < bb && d2 < bd) { bd = d2; best = o; } }
     if (P.alive && P.phase === 'ground' && matchT > P.landT + 2.5) { const d2 = (P.x - b.x) ** 2 + (P.z - b.z) ** 2; if (d2 < bd * 1.1) { bd = d2; best = P; } }
     if (b.target) { const d2 = (b.target.x - b.x) ** 2 + (b.target.z - b.z) ** 2; if (d2 < (D.detect * 1.4) ** 2 && (!best || d2 < bd * 2.2)) best = b.target; }
     if (best) {
@@ -2687,12 +2662,12 @@ function updateBot(b, dt) {
     if (b.deadT > 0) { b.deadT -= dt; const k = clamp((1.1 - b.deadT) / 0.45, 0, 1); m.g.rotation.x = k * k * 1.2; m.g.position.y = b.y + 0.1 * k; m.g.scale.setScalar(clamp(b.deadT / 0.4, 0.01, 1)); animHuman(m, { mode: 'dead' }); m.gun.visible = false; if (b.deadT <= 0) { burst(b.x, b.y + 0.7, b.z, 0x9aa0ab, 22, 2.6); m.g.visible = false; W.scene.remove(m.g); } }
     return;
   }
-  if (b.inBus) {
-    const bus = W.bus;
-    if (!bus) return;
-    b.x = bus.x; b.z = bus.z; b.y = bus.y; m.g.visible = false;
-    if (bus.t / bus.dur >= b.dropAt) {
-      b.inBus = false; b.y = bus.y - 8;
+  if (b.onAirship) {
+    const airship = W.airship;
+    if (!airship) return;
+    b.x = airship.x; b.z = airship.z; b.y = airship.y; m.g.visible = false;
+    if (airship.t / airship.dur >= b.dropAt) {
+      b.onAirship = false; b.y = airship.y - 8;
       let tx = b.x + (R() - 0.5) * 220, tz = b.z + (R() - 0.5) * 220, bestV = null, bd = 230;
       for (const v of W.villages) { const d = Math.hypot(v.x - b.x, v.z - b.z); if (d < bd && R() < 0.75) { bd = d; bestV = v; } }
       if (bestV) { tx = bestV.x + (R() - 0.5) * 60; tz = bestV.z + (R() - 0.5) * 60; }
@@ -2771,12 +2746,12 @@ function stormUpdate(dt) {
   if (W.stormTick >= 1) {
     W.stormTick -= 1; const dmg = STORM[Math.min(s.phase, STORM.length - 1)].d;
     if (P.alive && P.phase === 'ground' && Math.hypot(P.x - s.cx, P.z - s.cz) > s.r) { damagePlayer(dmg, null); }
-    for (const b of W.bots) if (b.alive && !b.landing && !b.inBus && Math.hypot(b.x - s.cx, b.z - s.cz) > s.r) { b.hp -= dmg; if (b.hp <= 0) killBot(b, null, 'storm'); }
+    for (const b of W.bots) if (b.alive && !b.landing && !b.onAirship && Math.hypot(b.x - s.cx, b.z - s.cz) > s.r) { b.hp -= dmg; if (b.hp <= 0) killBot(b, null, 'storm'); }
   }
 }
 
 // ================= MATCH FLOW =================
-function makeBus() { const hb = makeHalloweenBus(); hb.group.userData.fx = hb; return hb.group; }
+function makeAirship() { const hb = makePumpkinAirship(); hb.group.userData.fx = hb; return hb.group; }
 function startMatch() {
   const map = MAPS[settings.map];
   $('#loading').hidden = false; $('#loadTxt').textContent = map.name + ' · ' + map.size + ' m · ' + 'tu contro ' + map.bots + ' bot';
@@ -2784,13 +2759,13 @@ function startMatch() {
     disposeWorld();
     buildWorld(settings.map, settings.diff);
     newPlayer(); spawnBots(); stormInit();
-    const a = R() * Math.PI * 2, R1 = W.S * 0.58, busY = W.map.mountain ? 175 : 140;
+    const a = R() * Math.PI * 2, R1 = W.S * 0.58, airY = W.map.mountain ? 175 : 140;
     const sx = -Math.cos(a) * R1, sz = -Math.sin(a) * R1, ex = Math.cos(a) * R1, ez = Math.sin(a) * R1;
     const dur = clamp(W.S / 45, 12, 30);
-    W.bus = { sx, sz, ex, ez, y: busY, t: 0, dur, active: true, m: makeBus(), x: sx, z: sz };
-    W.bus.m.rotation.y = Math.atan2(-(ex - sx), -(ez - sz)); W.bus.m.position.set(sx, busY, sz); W.scene.add(W.bus.m); W.bus.fx = W.bus.m.userData.fx; sfx('bus');
-    yaw = W.bus.m.rotation.y; pitch = -0.35;
-    P.x = sx; P.z = sz; P.y = busY - 4;
+    W.airship = { sx, sz, ex, ez, y: airY, t: 0, dur, active: true, m: makeAirship(), x: sx, z: sz };
+    W.airship.m.rotation.y = Math.atan2(-(ex - sx), -(ez - sz)); W.airship.m.position.set(sx, airY, sz); W.scene.add(W.airship.m); W.airship.fx = W.airship.m.userData.fx; sfx('airship');
+    yaw = W.airship.m.rotation.y; pitch = -0.35;
+    P.x = sx; P.z = sz; P.y = airY - 4;
     matchT = 0; promptLoot = null; for (const k in hudCache) delete hudCache[k];
     hud.feed.innerHTML = ''; renderSlots();
     $('#loading').hidden = true; $('#home').hidden = true; $('#hud').hidden = false; $('#end').hidden = true; $('#pause').hidden = true;
@@ -2800,8 +2775,8 @@ function startMatch() {
   }, 60);
 }
 function drop() {
-  if (P.phase !== 'bus') return;
-  P.phase = 'fall'; P.y = W.bus.y - 8; P.vy = 0; sfx('glide', 0.6);
+  if (P.phase !== 'airship') return;
+  P.phase = 'fall'; P.y = W.airship.y - 8; P.vy = 0; sfx('glide', 0.6);
   P.model.g.visible = true; banner('Punta verso un villaggio: lì ci sono più forzieri', 3);
 }
 function landPlayer() {
@@ -2851,8 +2826,8 @@ function updatePlayer(dt) {
   const wx = rgtX * mx + fwdX * mz, wz = rgtZ * mx + fwdZ * mz;
   const sprint = input.sprint || K.ShiftLeft || K.ShiftRight;
   if (!P.alive) { input.jumpQ = false; return; }
-  if (P.phase === 'bus') {
-    P.x = W.bus.x; P.z = W.bus.z; P.y = W.bus.y + 2; P.model.g.visible = false;
+  if (P.phase === 'airship') {
+    P.x = W.airship.x; P.z = W.airship.z; P.y = W.airship.y + 2; P.model.g.visible = false;
     if (input.jumpQ) drop();
   } else if (P.phase === 'fall' || P.phase === 'glide') {
     const fall = P.phase === 'fall', hs = fall ? 19 : 13;
@@ -2878,7 +2853,7 @@ function updatePlayer(dt) {
   input.jumpQ = false;
   // model
   const m = P.model;
-  if (P.phase !== 'bus') {
+  if (P.phase !== 'airship') {
     m.g.position.set(P.x, P.y, P.z); m.g.rotation.y = yaw; m.g.rotation.x = 0;
     const gspd = P.phase === 'ground' ? Math.min(9, P.speedNow) : 0;
     P.animT += dt * gspd * 1.9;
@@ -2912,7 +2887,7 @@ function envUpdate(dt) {
 function updateCamera(dt) {
   let dist = 4.6, sh = 0.85, up = 0.35, fov = 70;
   const it = P.slots[P.cur];
-  if (P.phase === 'bus') { dist = 34; sh = 0; up = 4; }
+  if (P.phase === 'airship') { dist = 34; sh = 0; up = 4; }
   else if (P.phase === 'fall' || P.phase === 'glide') { dist = 8; sh = 0; up = 1.2; }
   else if (!P.alive) { dist = 9; sh = 0; up = 2; }
   else if (P.aim) { if (WEAPONS[it.kind].scope) { dist = 0.05; sh = 0; up = 0.1; fov = 17; } else { dist = 2.3; sh = 0.72; up = 0.3; fov = 54; } }
@@ -2924,7 +2899,7 @@ function updateCamera(dt) {
   const gmin = Math.max(W.getH(cx, cz), -0.6) + 0.45; if (cy < gmin) cy = gmin;
   camera.position.set(cx, cy, cz); camera.lookAt(cx + fx, cy + fy, cz + fz);
   if (Math.abs(camera.fov - fov) > 0.1) { camera.fov = lerp(camera.fov, fov, 1 - Math.exp(-14 * dt)); camera.updateProjectionMatrix(); }
-  P.model.g.visible = (P.alive || (P.deadT > 0 && P.deadT < 1.1)) && P.phase !== 'bus' && !(P.aim && WEAPONS[it.kind].scope && P.phase === 'ground');
+  P.model.g.visible = (P.alive || (P.deadT > 0 && P.deadT < 1.1)) && P.phase !== 'airship' && !(P.aim && WEAPONS[it.kind].scope && P.phase === 'ground');
   if (P.alive) { P.model.gun.visible = P.phase === 'ground'; setLOD(P.model, true); }
 }
 function drawFx(dt) {
@@ -2957,10 +2932,10 @@ function update(dt) {
   const sens = P.aim ? (scope ? 0.28 : 0.55) : 1;
   yaw -= input.lookDX * sens; pitch = clamp(pitch - input.lookDY * sens, -1.25, 1.1);
   input.lookDX = 0; input.lookDY = 0;
-  if (W.bus && W.bus.active) {
-    const b = W.bus; b.t += dt; const t = b.t / b.dur;
+  if (W.airship && W.airship.active) {
+    const b = W.airship; b.t += dt; const t = b.t / b.dur;
     b.x = lerp(b.sx, b.ex, t); b.z = lerp(b.sz, b.ez, t); b.m.position.set(b.x, b.y, b.z); if (b.fx) b.fx.update(dt);
-    if (t >= 1 && P.phase === 'bus') drop();
+    if (t >= 1 && P.phase === 'airship') drop();
     if (t > 1.6) { b.active = false; W.scene.remove(b.m); }
   }
   updatePlayer(dt); updateDeadPlayer(dt);
