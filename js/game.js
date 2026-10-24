@@ -2627,7 +2627,7 @@ function killBot(b, killer, kind) {
     killer.kills++; feed(fillTxt(pick(FEED_KILL), { k: killer.name, g: b.name }));
     if (matchT - (killer.lastKillT ?? -99) < 5) feed(fillTxt('Doppia eliminazione! {k} non conosce la paura.', { k: killer.name }), 'ev'); killer.lastKillT = matchT;
   } else feed(fillTxt(pick(FEED_STORM), { g: b.name }));
-  { const left = W.aliveBots + (P.alive ? 1 : 0); if ([50, 25, 10, 5, 3].includes(left) && !W.saidN[left]) { W.saidN[left] = true; feed('Rimangono ' + left + ' giocatori. Le zucche osservano.', 'ev'); } }
+  { const left = W.aliveBots + (P.alive ? 1 : 0); if ([50, 25, 10, 5, 3].includes(left) && !W.saidN[left]) { W.saidN[left] = true; feed('Rimangono ' + left + ' in gara. Le zucche osservano.', 'ev'); } }
   spawnLoot(b.x, b.y, b.z, { type: 'gun', kind: b.w.kind, rar: b.w.rar, mag: WEAPONS[b.w.kind].mag }, (R() - 0.5) * 3, (R() - 0.5) * 3);
   spawnLoot(b.x, b.y, b.z, { type: 'munizioni', n: 30 }, (R() - 0.5) * 3, (R() - 0.5) * 3);
   if (R() < 0.5) spawnLoot(b.x, b.y, b.z, R() < 0.5 ? { type: 'bende', n: 2 } : { type: 'scudo', n: 1 }, (R() - 0.5) * 3, (R() - 0.5) * 3);
